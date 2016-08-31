@@ -18,5 +18,8 @@
   "homepage": "https://github.com/teramotodaiki/hackforplayer#readme",
   "devDependencies": {
     "webpack": "^1.13.2"
+  },
+  "dependencies": {
+    "hogan.js": "^3.0.2"
   }
 }

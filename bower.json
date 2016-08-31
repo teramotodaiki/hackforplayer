@@ -1,0 +1,17 @@
+{
+  "name": "hackforplayer",
+  "description": "A player for hackforplay-embed in any website.",
+  "main": "hackforplayer.js",
+  "authors": [
+    "teramotodaiki <i101323@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/teramotodaiki/hackforplayer",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

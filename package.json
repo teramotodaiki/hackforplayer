@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/teramotodaiki/hackforplayer/issues"
   },
-  "homepage": "https://github.com/teramotodaiki/hackforplayer#readme"
+  "homepage": "https://github.com/teramotodaiki/hackforplayer#readme",
+  "devDependencies": {
+    "webpack": "^1.13.2"
+  }
 }

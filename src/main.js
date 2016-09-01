@@ -13,17 +13,20 @@ window.onload = () => {
 
       const props = { src };
       element.innerHTML = content.render(props);
-      return element.querySelector(classNamePrefix + 'content__iframe').contentWindow;
+      return {
+        contentWindow: element.querySelector(classNamePrefix + 'content__iframe').contentWindow,
+        code: document.querySelector(element.getAttribute('data-target')).textContent,
+      };
 
     })
-    .forEach((contentWindow) => addEventListener('message', (event) => {
+    .forEach(({contentWindow, code}) => addEventListener('message', (event) => {
 
       if (event.source === contentWindow) {
-        console.log(event.data); // ping
-        event.ports[0].onmessage = (event) => {
-          console.log(event.data); // connected!
-        };
-        event.ports[0].postMessage('pong');
+        event.ports[0].postMessage({
+          method: 'require',
+          dependencies: [],
+          code
+        });
       }
 
     }));

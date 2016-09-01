@@ -45,10 +45,21 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const Hogan = __webpack_require__(1);
-	const copyright = __webpack_require__(4).copyright;
 
-	console.log(copyright.render({ year: 2016 }));
-	console.log('Hey! I am hackforplayer!');
+	const content = __webpack_require__(4).content;
+
+	const classNamePrefix = '.h4p__';
+	const src = 'http://localhost:3000/index.html';
+
+	window.onload = () => {
+
+	  Array.prototype.slice.call(document.querySelectorAll(classNamePrefix + 'content'))
+	    .map((element) => {
+	      const props = { src };
+	      element.innerHTML = content.render(props);
+	    });
+
+	};
 
 
 /***/ },
@@ -861,6 +872,7 @@
 	const Hogan = __webpack_require__(1);
 
 	module.exports = {
+	  content: new Hogan.Template(__webpack_require__(6)),
 	  copyright: new Hogan.Template(__webpack_require__(5))
 	};
 
@@ -870,6 +882,12 @@
 /***/ function(module, exports) {
 
 	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<span>Copyright ");t.b(t.v(t.f("year",c,p,0)));t.b("</span>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<iframe src=\"");t.b(t.v(t.f("src",c,p,0)));t.b("\" width=\"480\" height=\"320\"></iframe>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}
 
 /***/ }
 /******/ ]);

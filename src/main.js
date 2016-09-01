@@ -22,11 +22,11 @@ window.onload = () => {
     .forEach(({contentWindow, code}) => addEventListener('message', (event) => {
 
       if (event.source === contentWindow) {
-        console.log(event.data); // ping
-        event.ports[0].onmessage = (event) => {
-          console.log(event.data); // connected!
-        };
-        event.ports[0].postMessage('pong');
+        event.ports[0].postMessage({
+          method: 'require',
+          dependencies: [],
+          code
+        });
       }
 
     }));

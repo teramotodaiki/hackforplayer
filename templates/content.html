@@ -1,8 +1,21 @@
-<div>
-  <iframe
-    class="h4p__content__iframe"
-    src="{{src}}"
-    width="480"
-    height="320"
-  ></iframe>
+<div
+  class="h4p__wrapper"
+  style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch"
+>
+  <div
+    class="h4p__screen"
+    style="flex: 1 1 auto; display: flex; align-items: flex-end; justify-content: center"
+  >
+    <iframe
+      class="h4p__iframe"
+      src="{{src}}"
+      style="border: 0"
+    ></iframe>
+  </div>
+  <div
+    class="h4p__menu"
+    style="width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray"
+  >
+    [MENU BAR]
+  </div>
 </div>

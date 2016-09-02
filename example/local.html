@@ -7,9 +7,31 @@
   </head>
   <body>
     <h1>The simpest HackforPlay example</h1>
-    <div class="h4p__content" data-target="#script1"></div>
+    <div class="h4p" data-target="#script1" style="width: 600px; height: 300px;"></div>
     <script id="script1" type="hack">
-    document.body.innerHTML = 'Hack!!';
+    Hack.canvas.width = 480;
+    Hack.canvas.height = 320;
+    var context = Hack.canvas.getContext('2d');
+
+    var x = 10, y = Hack.canvas.height + 1, vx = 1, vy = -2;
+    setInterval(() => {
+
+      context.fillStyle = 'rgba(0, 0, 0, .2)';
+      context.fillRect(0, y + 1, Hack.canvas.width, 1);
+
+      x += vx;
+      y += vy;
+      if (x <= 0 && vx < 0 || x >= Hack.canvas.width - 1 && vx > 0) {
+        vx *= -1;
+      }
+      if (y <= 0 && vy < 0 || y >= Hack.canvas.height - 1 && vy > 0) {
+        vy *= -1;
+      }
+
+      context.fillStyle = 'rgb(0, 255, 0)';
+      context.fillRect(x, y, 1, 1);
+
+    }, 20);
     </script>
   </body>
 </html>

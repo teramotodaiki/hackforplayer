@@ -1,4 +1,4 @@
-const H4Player = require('./H4Player');
+const Player = require('./Player');
 const selectors = require('./selectors');
 
 window.onload = () => {

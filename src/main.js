@@ -1,12 +1,11 @@
 const Player = require('./Player');
 const selectors = require('./selectors');
 
-window.onload = () => {
-
+const init = () => {
   const players =
     Array.prototype.slice.call(document.querySelectorAll(selectors.container))
     .map(element => {
-      const player = new H4Player(element);
+      const player = new Player(element);
       const query = element.getAttribute('data-target');
 
       player.addEventListener('connect', () => {
@@ -21,4 +20,14 @@ window.onload = () => {
       return player;
     });
 
+  return players;
 };
+// export global
+window.h4p = (...args) =>
+  new Promise((resolve, reject) => {
+    addEventListener('load', () => {
+      return resolve(init(...args));
+    });
+  });
+
+h4p.Player = Player;

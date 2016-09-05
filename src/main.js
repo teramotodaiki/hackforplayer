@@ -1,20 +1,27 @@
 const Player = require('./Player');
 const selectors = require('./selectors');
+const makeIFrame = require('./makeIFrame');
+
+const src = 'http://localhost:3000/index.html';
 
 const init = () => {
   const players =
     Array.prototype.slice.call(document.querySelectorAll(selectors.container))
-    .map(element => {
-      const player = new Player(element);
-      const query = element.getAttribute('data-target');
+    .map(container => {
+      // An iframe element as a sigleton
+      const iframe = makeIFrame();
+      iframe.src = src;
 
-      player.addEventListener('connect', () => {
-        // Load contents
-        player.postMessage({
-          method: 'require',
-          dependencies: [],
-          code: query && document.querySelector(query).textContent,
-        });
+      // An instance of h4p.Player
+      const player = new Player(container);
+
+      player.render() // Render it and load iframe src.
+      .then(() => player.connect(iframe.contentWindow))
+      .then(() => {
+        const query = container.getAttribute('data-target');
+        player.start([], query && document.querySelector(query).textContent);
+      });
+
       });
 
       return player;
@@ -31,3 +38,4 @@ window.h4p = (...args) =>
   });
 
 h4p.Player = Player;
+h4p.makeIFrame = makeIFrame;

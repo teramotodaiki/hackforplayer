@@ -4,83 +4,119 @@ const erd = require('element-resize-detector')({
 });
 
 const selectors = require('./selectors');
+const getElementRect = require('./getElementRect');
 const content = require('../templates/').content;
-
-
-const src = 'http://localhost:3000/index.html';
 
 class Player extends EventTarget {
 
-  constructor(element) {
+  constructor(container) {
     super();
 
-    const props = { src };
-    element.innerHTML = content.render(props);
-    this.screen = element.querySelector(selectors.screen);
-    this.iframe = this.screen.querySelector(selectors.iframe);
+    this.container = container;
 
-    this.port = null;
+    this._dispatchResizeEvent = this._dispatchResizeEvent.bind(this);
 
     var width = 300, height = 150;
     this.getContentSize = () => ({ width, height });
-    this.addEventListener('resize.message', (event) => {
+    this.addEventListener('resize.message', () => {
       width = event.data.width;
       height = event.data.height;
-      this.dispatchEvent(new Event('resize'));
+      this._dispatchResizeEvent();
     });
-    erd.listenTo(this.screen, () => this.dispatchEvent(new Event('resize')));
-    this._onresize();
-    this.addEventListener('resize', this._onresize);
 
-    this.standBy();
-  }
-
-  standBy() {
-    addEventListener('message', (event) => {
-      if (event.source !== this.iframe.contentWindow) return;
-      this.port = event.ports[0];
-      this.port.onmessage = (event) => {
-        this.dispatchEvent(event);
-        if (event.data.method) {
-          const partialEvent = new Event(event.data.method + '.message');
-          partialEvent.data = event.data;
-          this.dispatchEvent(partialEvent);
-        }
-      };
-      this.dispatchEvent(new Event('connect'));
-    });
-  }
-
-  postMessage(...args) {
-    if (this.port) {
-      this.port.postMessage(...args);
-    } else {
-      this.iframe.contentWindow.postMessage
-        .apply(this.iframe.contentWindow, args.length === 1 ? args.concat('*') : args);
-    }
-  }
-
-  _onresize() {
-    const getSize = (element) => {
-      const style = getComputedStyle(element);
-      const getStyle = (name) => parseInt(style.getPropertyValue(name), 10);
-      return { width: getStyle('width'), height: getStyle('height') };
+    // cannot access port directly
+    var port = null;
+    this.setPort = (value) => {
+      port = this._setPort(value, port);
     };
 
-    const contentSize = this.getContentSize();
-    const screenSize = getSize(this.screen);
-
-    const ratio = (size) => Math.max(size.height, 1) / Math.max(size.width, 1);
-    if (ratio(screenSize) > ratio(contentSize)) {
-      this.iframe.width = screenSize.width;
-      this.iframe.height = screenSize.width * ratio(contentSize);
-    } else {
-      this.iframe.width = screenSize.height / ratio(contentSize);
-      this.iframe.height = screenSize.height;
-    }
-
+    this.addEventListener('render', this._onrender);
+    this.addEventListener('resize', this._onresize);
   }
 
+  renderSync(props) {
+    this.dispatchEvent(new Event('beforerender'));
+    this.container.innerHTML = content.render(props);
+    this.dispatchEvent(new Event('render'));
+  }
+
+  render(props) {
+    return new Promise((resolve, reject) => {
+      this.renderSync(props);
+      resolve();
+    });
+  }
+
+  standBy(contentWindow) {
+    return new Promise((resolve, reject) => {
+      addEventListener('message', function task(event) {
+        if (event.source !== contentWindow) return;
+        removeEventListener('message', task);
+        resolve(event);
+      });
+    });
+  }
+
+  connect(contentWindow) {
+    return new Promise((resolve, reject) => {
+
+      // TODO: Request to reload if connected
+
+      this.standBy(contentWindow)
+      .then((event) => {
+        this.setPort(event.ports[0]);
+        resolve();
+      });
+    });
+  }
+
+  postMessage() {
+    throw new Error('Missing a port. It has not connected yet.');
+  }
+
+  start(dependencies = [], code = '') {
+    this.postMessage({
+      method: 'require',
+      dependencies,
+      code,
+    });
+  }
+
+  _onrender() {
+    const screen = this.container.querySelector(selectors.screen);
+    if (!screen) return;
+
+    erd.listenTo(screen, this._dispatchResizeEvent);
+    this.addEventListener('beforerender', () => erd.uninstall(screen));
+  }
+
+  _dispatchResizeEvent() {
+    const screen = this.container.querySelector(selectors.screen);
+    if (!screen) return;
+
+    const event = new Event('resize');
+    event.screenRect = getElementRect(screen);
+    event.contentSize = this.getContentSize();
+    this.dispatchEvent(event);
+  }
+
+  _setPort(next, current) {
+    if (current) {
+      current.onmessage = null;
+    }
+    next.onmessage = (event) => {
+      this.dispatchEvent(event);
+      if (event.data.method) {
+        const partialEvent = new Event(event.data.method + '.message');
+        partialEvent.data = event.data;
+        this.dispatchEvent(partialEvent);
+      }
+    };
+    this.postMessage = (...args) => {
+      next.postMessage(...args);
+    };
+    return next;
+  }
 }
 
 module.exports = Player;

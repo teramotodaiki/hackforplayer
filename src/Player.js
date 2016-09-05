@@ -32,9 +32,17 @@ class Player extends EventTarget {
 
     this.addEventListener('render', this._onrender);
     this.addEventListener('resize', this._onresize);
+
+    this.state = {};
   }
 
-  renderSync(props) {
+  setState(change) {
+    this.state = Object.assign({}, this.state, change);
+    this.renderSync();
+  }
+
+  renderSync(props = {}) {
+    props = Object.assign({}, this.state, props);
     this.dispatchEvent(new Event('beforerender'));
     this.container.innerHTML = content.render(props);
     this.dispatchEvent(new Event('render'));

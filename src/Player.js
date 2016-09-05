@@ -3,16 +3,18 @@ const erd = require('element-resize-detector')({
   strategy: "scroll" //<- For ultra performance.
 });
 
+const Button = require('./Button');
 const getElementRect = require('./getElementRect');
 const content = require('../templates/').content;
+const button = require('../templates/').button;
 
 class Player extends EventTarget {
 
-  constructor(container, settings = {}) {
+  constructor(props) {
     super();
 
-    this.container = container;
-    this.selectors = require('./selectors')(settings.namespace);
+    this.container = props.container;
+    this.selectors = require('./selectors')(props.namespace);
 
     this._dispatchResizeEvent = this._dispatchResizeEvent.bind(this);
 
@@ -32,11 +34,26 @@ class Player extends EventTarget {
 
     this.addEventListener('render', this._onrender);
     this.addEventListener('resize', this._onresize);
+
+    this.state = {
+      // examples
+      buttons: [
+        Button({ label: 'HACK', onClick: (event) => console.log(event, 'Hack!!', this) }),
+        Button({ label: 'RELOAD', onClick: (event) => console.log(event, 'Reload!!', this) })
+      ]
+    };
   }
 
-  renderSync(props) {
+  setState(change) {
+    this.state = Object.assign({}, this.state, change);
+    this.renderSync();
+  }
+
+  renderSync(props = {}) {
+    props = Object.assign({}, this.state, props);
     this.dispatchEvent(new Event('beforerender'));
-    this.container.innerHTML = content.render(props);
+    this.container.innerHTML = content.render(props, {button});
+
     this.dispatchEvent(new Event('render'));
   }
 

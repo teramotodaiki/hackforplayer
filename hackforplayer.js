@@ -62,7 +62,7 @@
 	      iframe.src = src;
 
 	      // An instance of h4p.Player
-	      const player = new Player(container, {namespace});
+	      const player = new Player({container, namespace});
 
 	      player.render() // Render it and load iframe src.
 	      .then(() => player.connect(iframe.contentWindow))
@@ -89,6 +89,7 @@
 
 	h4p.Player = Player;
 	h4p.makeIFrame = makeIFrame;
+	h4p.trigger = __webpack_require__(39)('h4p').trigger;
 
 
 /***/ },
@@ -902,6 +903,7 @@
 
 	module.exports = {
 	  content: new Hogan.Template(__webpack_require__(6)),
+	  button: new Hogan.Template(__webpack_require__(36)),
 	  copyright: new Hogan.Template(__webpack_require__(5))
 	};
 
@@ -916,7 +918,7 @@
 /* 6 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"h4p__wrapper\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"h4p__screen\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"h4p__menu\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);t.b("    [MENU BAR]");t.b("\n" + i);t.b("  </div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"h4p__wrapper\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"h4p__screen\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"h4p__menu\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);if(t.s(t.f("buttons",c,p,1),c,p,0,312,336,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
 /* 7 */,
@@ -3160,16 +3162,18 @@
 	  strategy: "scroll" //<- For ultra performance.
 	});
 
+	const Button = __webpack_require__(37);
 	const getElementRect = __webpack_require__(34);
 	const content = __webpack_require__(4).content;
+	const button = __webpack_require__(4).button;
 
 	class Player extends EventTarget {
 
-	  constructor(container, settings = {}) {
+	  constructor(props) {
 	    super();
 
-	    this.container = container;
-	    this.selectors = __webpack_require__(24)(settings.namespace);
+	    this.container = props.container;
+	    this.selectors = __webpack_require__(24)(props.namespace);
 
 	    this._dispatchResizeEvent = this._dispatchResizeEvent.bind(this);
 
@@ -3189,11 +3193,26 @@
 
 	    this.addEventListener('render', this._onrender);
 	    this.addEventListener('resize', this._onresize);
+
+	    this.state = {
+	      // examples
+	      buttons: [
+	        Button({ label: 'HACK', onClick: (event) => console.log(event, 'Hack!!', this) }),
+	        Button({ label: 'RELOAD', onClick: (event) => console.log(event, 'Reload!!', this) })
+	      ]
+	    };
 	  }
 
-	  renderSync(props) {
+	  setState(change) {
+	    this.state = Object.assign({}, this.state, change);
+	    this.renderSync();
+	  }
+
+	  renderSync(props = {}) {
+	    props = Object.assign({}, this.state, props);
 	    this.dispatchEvent(new Event('beforerender'));
-	    this.container.innerHTML = content.render(props);
+	    this.container.innerHTML = content.render(props, {button});
+
 	    this.dispatchEvent(new Event('render'));
 	  }
 
@@ -3349,6 +3368,41 @@
 	      iframe.style.top = screenRect.top + 'px';
 	    }
 	  };
+
+
+/***/ },
+/* 36 */
+/***/ function(module, exports) {
+
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<button onClick=\"");t.b(t.v(t.f("onClick",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  ");t.b(t.v(t.f("label",c,p,0)));t.b("\n" + i);t.b("</button>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}
+
+/***/ },
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const on = __webpack_require__(39)('h4p').on;
+
+	module.exports = (props) => Object.assign({}, props, {
+	  onClick: props.onClick ? on(props.onClick) : null
+	});
+
+
+/***/ },
+/* 38 */,
+/* 39 */
+/***/ function(module, exports) {
+
+	var _listeners = {}, i = 0;
+
+	const trigger = (key, thisObj, event) => _listeners[key].call(thisObj, event);
+	module.exports = (namespace) => ({
+	  on: (handler) => {
+	    const key = '_' + ++i;
+	    _listeners[key] = handler;
+	    return `${namespace}.trigger('${key}', this, event);`;
+	  },
+	  trigger
+	});
 
 
 /***/ }

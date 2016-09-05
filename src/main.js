@@ -16,7 +16,7 @@ const init = (namespace) => {
       iframe.src = src;
 
       // An instance of h4p.Player
-      const player = new Player(container, {namespace});
+      const player = new Player({container, namespace});
 
       player.render() // Render it and load iframe src.
       .then(() => player.connect(iframe.contentWindow))
@@ -43,3 +43,4 @@ window.h4p = (...args) =>
 
 h4p.Player = Player;
 h4p.makeIFrame = makeIFrame;
+h4p.trigger = require('./keyEvent')('h4p').trigger;

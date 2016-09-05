@@ -1,10 +1,10 @@
 const Player = require('./Player');
-const selectors = require('./selectors');
 const makeIFrame = require('./makeIFrame');
 
 const src = 'http://localhost:3000/index.html';
 
-const init = () => {
+const init = (namespace) => {
+  const selectors = require('./selectors')(namespace);
   const players =
     Array.prototype.slice.call(document.querySelectorAll(selectors.container))
     .map(container => {
@@ -13,7 +13,7 @@ const init = () => {
       iframe.src = src;
 
       // An instance of h4p.Player
-      const player = new Player(container);
+      const player = new Player(container, {namespace});
 
       player.render() // Render it and load iframe src.
       .then(() => player.connect(iframe.contentWindow))

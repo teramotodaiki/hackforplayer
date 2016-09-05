@@ -3,16 +3,16 @@ const erd = require('element-resize-detector')({
   strategy: "scroll" //<- For ultra performance.
 });
 
-const selectors = require('./selectors');
 const getElementRect = require('./getElementRect');
 const content = require('../templates/').content;
 
 class Player extends EventTarget {
 
-  constructor(container) {
+  constructor(container, settings = {}) {
     super();
 
     this.container = container;
+    this.selectors = require('./selectors')(settings.namespace);
 
     this._dispatchResizeEvent = this._dispatchResizeEvent.bind(this);
 
@@ -83,7 +83,7 @@ class Player extends EventTarget {
   }
 
   _onrender() {
-    const screen = this.container.querySelector(selectors.screen);
+    const screen = this.container.querySelector(this.selectors.screen);
     if (!screen) return;
 
     erd.listenTo(screen, this._dispatchResizeEvent);
@@ -91,7 +91,7 @@ class Player extends EventTarget {
   }
 
   _dispatchResizeEvent() {
-    const screen = this.container.querySelector(selectors.screen);
+    const screen = this.container.querySelector(this.selectors.screen);
     if (!screen) return;
 
     const event = new Event('resize');

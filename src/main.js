@@ -16,7 +16,7 @@ const init = (namespace) => {
       iframe.src = src;
 
       // An instance of h4p.Player
-      const player = new Player(container, {namespace});
+      const player = new Player({container, namespace});
 
       player.render() // Render it and load iframe src.
       .then(() => player.connect(iframe.contentWindow))

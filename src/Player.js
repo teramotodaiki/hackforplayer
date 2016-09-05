@@ -8,11 +8,11 @@ const content = require('../templates/').content;
 
 class Player extends EventTarget {
 
-  constructor(container, settings = {}) {
+  constructor(props) {
     super();
 
-    this.container = container;
-    this.selectors = require('./selectors')(settings.namespace);
+    this.container = props.container;
+    this.selectors = require('./selectors')(props.namespace);
 
     this._dispatchResizeEvent = this._dispatchResizeEvent.bind(this);
 

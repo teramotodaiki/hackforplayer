@@ -59,17 +59,24 @@
 	    .map(container => {
 	      // An iframe element as a sigleton
 	      const iframe = makeIFrame();
-	      iframe.src = src;
+
+	      // Inline script
+	      const query = container.getAttribute('data-target');
+	      const code = query && document.querySelector(query).textContent;
+
+	      // Initializer
+	      const init = (player) => {
+	        iframe.contentWindow.location.assign(src);
+	        return player
+	          .connect(iframe.contentWindow)
+	          .then(() => {
+	            player.start([], code);
+	          });
+	      };
 
 	      // An instance of h4p.Player
-	      const player = new Player({container, namespace});
-
-	      player.render() // Render it and load iframe src.
-	      .then(() => player.connect(iframe.contentWindow))
-	      .then(() => {
-	        const query = container.getAttribute('data-target');
-	        player.start([], query && document.querySelector(query).textContent);
-	      });
+	      const player = new Player({container, namespace, init});
+	      player.render(); // Render it and load iframe src.
 
 	      // Always contains in screen and stay bottom
 	      player.addEventListener('resize', stayBottom(iframe));
@@ -3198,9 +3205,11 @@
 	      // examples
 	      buttons: [
 	        Button({ label: 'HACK', onClick: (event) => console.log(event, 'Hack!!', this) }),
-	        Button({ label: 'RELOAD', onClick: (event) => console.log(event, 'Reload!!', this) })
+	        Button({ label: 'RELOAD', onClick: () => props.init(this) })
 	      ]
 	    };
+
+	    props.init(this); // Initialize player
 	  }
 
 	  setState(change) {

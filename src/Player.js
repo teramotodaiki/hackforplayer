@@ -3,8 +3,10 @@ const erd = require('element-resize-detector')({
   strategy: "scroll" //<- For ultra performance.
 });
 
+const Button = require('./Button');
 const getElementRect = require('./getElementRect');
 const content = require('../templates/').content;
+const button = require('../templates/').button;
 
 class Player extends EventTarget {
 
@@ -33,7 +35,13 @@ class Player extends EventTarget {
     this.addEventListener('render', this._onrender);
     this.addEventListener('resize', this._onresize);
 
-    this.state = {};
+    this.state = {
+      // examples
+      buttons: [
+        Button({ label: 'HACK', onClick: (event) => console.log(event, 'Hack!!', this) }),
+        Button({ label: 'RELOAD', onClick: (event) => console.log(event, 'Reload!!', this) })
+      ]
+    };
   }
 
   setState(change) {
@@ -44,7 +52,8 @@ class Player extends EventTarget {
   renderSync(props = {}) {
     props = Object.assign({}, this.state, props);
     this.dispatchEvent(new Event('beforerender'));
-    this.container.innerHTML = content.render(props);
+    this.container.innerHTML = content.render(props, {button});
+
     this.dispatchEvent(new Event('render'));
   }
 

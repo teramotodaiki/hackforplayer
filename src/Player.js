@@ -39,7 +39,7 @@ class Player extends EventTarget {
       // examples
       buttons: [
         Button({ label: 'HACK', onClick: (event) => console.log(event, 'Hack!!', this) }),
-        Button({ label: 'RELOAD', onClick: (event) => console.log(event, 'Reload!!', this) })
+        Button({ label: 'RELOAD', onClick: () => props.init(this) })
       ]
     };
 

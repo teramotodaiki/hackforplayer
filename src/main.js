@@ -43,3 +43,4 @@ window.h4p = (...args) =>
 
 h4p.Player = Player;
 h4p.makeIFrame = makeIFrame;
+h4p.trigger = require('./keyEvent')('h4p').trigger;

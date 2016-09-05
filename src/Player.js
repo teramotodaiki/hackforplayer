@@ -9,7 +9,7 @@ const content = require('../templates/').content;
 
 const src = 'http://localhost:3000/index.html';
 
-class H4Player extends EventTarget {
+class Player extends EventTarget {
 
   constructor(element) {
     super();
@@ -83,4 +83,4 @@ class H4Player extends EventTarget {
 
 }
 
-module.exports = H4Player;
+module.exports = Player;

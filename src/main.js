@@ -1,21 +1,32 @@
 const Player = require('./Player');
-const selectors = require('./selectors');
+const makeIFrame = require('./makeIFrame');
+const stayBottom = require('./stayBottom');
 
-const init = () => {
+const src = 'http://localhost:3000/index.html';
+
+const init = (namespace) => {
+  const selectors = require('./selectors')(namespace);
+  const containers = document.querySelectorAll(selectors.container);
+
   const players =
-    Array.prototype.slice.call(document.querySelectorAll(selectors.container))
-    .map(element => {
-      const player = new Player(element);
-      const query = element.getAttribute('data-target');
+    Array.prototype.slice.call(containers)
+    .map(container => {
+      // An iframe element as a sigleton
+      const iframe = makeIFrame();
+      iframe.src = src;
 
-      player.addEventListener('connect', () => {
-        // Load contents
-        player.postMessage({
-          method: 'require',
-          dependencies: [],
-          code: query && document.querySelector(query).textContent,
-        });
+      // An instance of h4p.Player
+      const player = new Player(container, {namespace});
+
+      player.render() // Render it and load iframe src.
+      .then(() => player.connect(iframe.contentWindow))
+      .then(() => {
+        const query = container.getAttribute('data-target');
+        player.start([], query && document.querySelector(query).textContent);
       });
+
+      // Always contains in screen and stay bottom
+      player.addEventListener('resize', stayBottom(iframe));
 
       return player;
     });
@@ -31,3 +42,4 @@ window.h4p = (...args) =>
   });
 
 h4p.Player = Player;
+h4p.makeIFrame = makeIFrame;

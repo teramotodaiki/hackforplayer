@@ -45,23 +45,34 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	const Player = __webpack_require__(31);
-	const selectors = __webpack_require__(24);
+	const makeIFrame = __webpack_require__(33);
+	const stayBottom = __webpack_require__(35);
 
-	const init = () => {
+	const src = 'http://localhost:3000/index.html';
+
+	const init = (namespace) => {
+	  const selectors = __webpack_require__(24)(namespace);
+	  const containers = document.querySelectorAll(selectors.container);
+
 	  const players =
-	    Array.prototype.slice.call(document.querySelectorAll(selectors.container))
-	    .map(element => {
-	      const player = new Player(element);
-	      const query = element.getAttribute('data-target');
+	    Array.prototype.slice.call(containers)
+	    .map(container => {
+	      // An iframe element as a sigleton
+	      const iframe = makeIFrame();
+	      iframe.src = src;
 
-	      player.addEventListener('connect', () => {
-	        // Load contents
-	        player.postMessage({
-	          method: 'require',
-	          dependencies: [],
-	          code: query && document.querySelector(query).textContent,
-	        });
+	      // An instance of h4p.Player
+	      const player = new Player(container, {namespace});
+
+	      player.render() // Render it and load iframe src.
+	      .then(() => player.connect(iframe.contentWindow))
+	      .then(() => {
+	        const query = container.getAttribute('data-target');
+	        player.start([], query && document.querySelector(query).textContent);
 	      });
+
+	      // Always contains in screen and stay bottom
+	      player.addEventListener('resize', stayBottom(iframe));
 
 	      return player;
 	    });
@@ -77,6 +88,7 @@
 	  });
 
 	h4p.Player = Player;
+	h4p.makeIFrame = makeIFrame;
 
 
 /***/ },
@@ -904,7 +916,7 @@
 /* 6 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"h4p__wrapper\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"h4p__screen\"");t.b("\n" + i);t.b("    style=\"flex: 1 1 auto; display: flex; align-items: flex-end; justify-content: center\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);t.b("    <iframe");t.b("\n" + i);t.b("      class=\"h4p__iframe\"");t.b("\n" + i);t.b("      src=\"");t.b(t.v(t.f("src",c,p,0)));t.b("\"");t.b("\n" + i);t.b("      style=\"border: 0\"");t.b("\n" + i);t.b("    ></iframe>");t.b("\n" + i);t.b("  </div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"h4p__menu\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);t.b("    [MENU BAR]");t.b("\n" + i);t.b("  </div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"h4p__wrapper\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"h4p__screen\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"h4p__menu\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);t.b("    [MENU BAR]");t.b("\n" + i);t.b("  </div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}
 
 /***/ },
 /* 7 */,
@@ -2585,13 +2597,11 @@
 /* 24 */
 /***/ function(module, exports) {
 
-	const namespace = '.h4p';
-	module.exports = {
+	module.exports = (namespace = '.h4p') => ({
 	  namespace,
 	  container: namespace,
-	  screen: namespace + '__screen',
-	  iframe: namespace + '__iframe',
-	};
+	  screen: namespace + '__screen'
+	});
 
 
 /***/ },
@@ -3150,87 +3160,195 @@
 	  strategy: "scroll" //<- For ultra performance.
 	});
 
-	const selectors = __webpack_require__(24);
+	const getElementRect = __webpack_require__(34);
 	const content = __webpack_require__(4).content;
-
-
-	const src = 'http://localhost:3000/index.html';
 
 	class Player extends EventTarget {
 
-	  constructor(element) {
+	  constructor(container, settings = {}) {
 	    super();
 
-	    const props = { src };
-	    element.innerHTML = content.render(props);
-	    this.screen = element.querySelector(selectors.screen);
-	    this.iframe = this.screen.querySelector(selectors.iframe);
+	    this.container = container;
+	    this.selectors = __webpack_require__(24)(settings.namespace);
 
-	    this.port = null;
+	    this._dispatchResizeEvent = this._dispatchResizeEvent.bind(this);
 
 	    var width = 300, height = 150;
 	    this.getContentSize = () => ({ width, height });
-	    this.addEventListener('resize.message', (event) => {
+	    this.addEventListener('resize.message', () => {
 	      width = event.data.width;
 	      height = event.data.height;
-	      this.dispatchEvent(new Event('resize'));
+	      this._dispatchResizeEvent();
 	    });
-	    erd.listenTo(this.screen, () => this.dispatchEvent(new Event('resize')));
-	    this._onresize();
-	    this.addEventListener('resize', this._onresize);
 
-	    this.standBy();
-	  }
-
-	  standBy() {
-	    addEventListener('message', (event) => {
-	      if (event.source !== this.iframe.contentWindow) return;
-	      this.port = event.ports[0];
-	      this.port.onmessage = (event) => {
-	        this.dispatchEvent(event);
-	        if (event.data.method) {
-	          const partialEvent = new Event(event.data.method + '.message');
-	          partialEvent.data = event.data;
-	          this.dispatchEvent(partialEvent);
-	        }
-	      };
-	      this.dispatchEvent(new Event('connect'));
-	    });
-	  }
-
-	  postMessage(...args) {
-	    if (this.port) {
-	      this.port.postMessage(...args);
-	    } else {
-	      this.iframe.contentWindow.postMessage
-	        .apply(this.iframe.contentWindow, args.length === 1 ? args.concat('*') : args);
-	    }
-	  }
-
-	  _onresize() {
-	    const getSize = (element) => {
-	      const style = getComputedStyle(element);
-	      const getStyle = (name) => parseInt(style.getPropertyValue(name), 10);
-	      return { width: getStyle('width'), height: getStyle('height') };
+	    // cannot access port directly
+	    var port = null;
+	    this.setPort = (value) => {
+	      port = this._setPort(value, port);
 	    };
 
-	    const contentSize = this.getContentSize();
-	    const screenSize = getSize(this.screen);
-
-	    const ratio = (size) => Math.max(size.height, 1) / Math.max(size.width, 1);
-	    if (ratio(screenSize) > ratio(contentSize)) {
-	      this.iframe.width = screenSize.width;
-	      this.iframe.height = screenSize.width * ratio(contentSize);
-	    } else {
-	      this.iframe.width = screenSize.height / ratio(contentSize);
-	      this.iframe.height = screenSize.height;
-	    }
-
+	    this.addEventListener('render', this._onrender);
+	    this.addEventListener('resize', this._onresize);
 	  }
 
+	  renderSync(props) {
+	    this.dispatchEvent(new Event('beforerender'));
+	    this.container.innerHTML = content.render(props);
+	    this.dispatchEvent(new Event('render'));
+	  }
+
+	  render(props) {
+	    return new Promise((resolve, reject) => {
+	      this.renderSync(props);
+	      resolve();
+	    });
+	  }
+
+	  standBy(contentWindow) {
+	    return new Promise((resolve, reject) => {
+	      addEventListener('message', function task(event) {
+	        if (event.source !== contentWindow) return;
+	        removeEventListener('message', task);
+	        resolve(event);
+	      });
+	    });
+	  }
+
+	  connect(contentWindow) {
+	    return new Promise((resolve, reject) => {
+
+	      // TODO: Request to reload if connected
+
+	      this.standBy(contentWindow)
+	      .then((event) => {
+	        this.setPort(event.ports[0]);
+	        resolve();
+	      });
+	    });
+	  }
+
+	  postMessage() {
+	    throw new Error('Missing a port. It has not connected yet.');
+	  }
+
+	  start(dependencies = [], code = '') {
+	    this.postMessage({
+	      method: 'require',
+	      dependencies,
+	      code,
+	    });
+	  }
+
+	  _onrender() {
+	    const screen = this.container.querySelector(this.selectors.screen);
+	    if (!screen) return;
+
+	    erd.listenTo(screen, this._dispatchResizeEvent);
+	    this.addEventListener('beforerender', () => erd.uninstall(screen));
+	  }
+
+	  _dispatchResizeEvent() {
+	    const screen = this.container.querySelector(this.selectors.screen);
+	    if (!screen) return;
+
+	    const event = new Event('resize');
+	    event.screenRect = getElementRect(screen);
+	    event.contentSize = this.getContentSize();
+	    this.dispatchEvent(event);
+	  }
+
+	  _setPort(next, current) {
+	    if (current) {
+	      current.onmessage = null;
+	    }
+	    next.onmessage = (event) => {
+	      this.dispatchEvent(event);
+	      if (event.data.method) {
+	        const partialEvent = new Event(event.data.method + '.message');
+	        partialEvent.data = event.data;
+	        this.dispatchEvent(partialEvent);
+	      }
+	    };
+	    this.postMessage = (...args) => {
+	      next.postMessage(...args);
+	    };
+	    return next;
+	  }
 	}
 
 	module.exports = Player;
+
+
+/***/ },
+/* 32 */,
+/* 33 */
+/***/ function(module, exports) {
+
+	var parentNode = null;
+	module.exports = () => {
+	  if (!parentNode) {
+	    parentNode = document.createElement('div');
+	    initStyle(parentNode);
+	    document.body.appendChild(parentNode);
+	  }
+
+	  const iframe = document.createElement('iframe');
+	  initStyle(iframe);
+	  parentNode.appendChild(iframe);
+
+	  return iframe;
+	};
+
+	function initStyle(node) {
+	  node.style.position = 'absolute';
+	  node.style.left = '0px';
+	  node.style.top = '0px';
+	  node.style.margin = '0px';
+	  node.style.padding = '0px';
+	  node.style.border = '0 none';
+	}
+
+
+/***/ },
+/* 34 */
+/***/ function(module, exports) {
+
+	module.exports = (element) => {
+	  const rect = element.getBoundingClientRect();
+	  return {
+	    width: rect.width,
+	    height: rect.height,
+	    top: rect.top + pageYOffset,
+	    right: rect.right + pageXOffset,
+	    bottom: rect.bottom + pageYOffset,
+	    left: rect.left + pageXOffset
+	  };
+	};
+
+
+/***/ },
+/* 35 */
+/***/ function(module, exports) {
+
+	module.exports =
+	(iframe) =>
+	  (event) => {
+	    const screenRect = event.screenRect;
+	    const contentSize = event.contentSize;
+
+	    const ratio = (size) => Math.max(size.height, 1) / Math.max(size.width, 1);
+	    if (ratio(screenRect) > ratio(contentSize)) {
+	      iframe.width = screenRect.width;
+	      iframe.height = screenRect.width * ratio(contentSize);
+	      iframe.style.left = screenRect.left + 'px';
+	      iframe.style.top = screenRect.top + (screenRect.height - iframe.height) + 'px';
+	    } else {
+	      iframe.width = screenRect.height / ratio(contentSize);
+	      iframe.height = screenRect.height;
+	      iframe.style.left = screenRect.left + (screenRect.width - iframe.width) / 2 + 'px';
+	      iframe.style.top = screenRect.top + 'px';
+	    }
+	  };
 
 
 /***/ }

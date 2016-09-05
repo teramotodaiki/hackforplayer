@@ -5,8 +5,10 @@ const src = 'http://localhost:3000/index.html';
 
 const init = (namespace) => {
   const selectors = require('./selectors')(namespace);
+  const containers = document.querySelectorAll(selectors.container);
+
   const players =
-    Array.prototype.slice.call(document.querySelectorAll(selectors.container))
+    Array.prototype.slice.call(containers)
     .map(container => {
       // An iframe element as a sigleton
       const iframe = makeIFrame();

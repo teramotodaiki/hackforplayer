@@ -42,6 +42,8 @@ class Player extends EventTarget {
         Button({ label: 'RELOAD', onClick: (event) => console.log(event, 'Reload!!', this) })
       ]
     };
+
+    props.init(this); // Initialize player
   }
 
   setState(change) {

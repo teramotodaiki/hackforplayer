@@ -4,7 +4,6 @@ const erd = require('element-resize-detector')({
 });
 const raf = require('raf');
 
-const Button = require('./Button');
 const getElementRect = require('./getElementRect');
 const content = require('../templates/').content;
 const button = require('../templates/').button;

@@ -1,6 +1,7 @@
 const Player = require('./Player');
 const makeIFrame = require('./makeIFrame');
 const stayBottom = require('./stayBottom');
+const Button = require('./Button');
 
 const src = 'http://localhost:3000/index.html';
 
@@ -31,6 +32,13 @@ const init = (namespace) => {
       // An instance of h4p.Player
       player.render(); // Render it and load iframe src.
       const player = new Player({container, namespace});
+      player.setRenderProps({
+        // examples
+        buttons: [
+          Button({ label: 'HACK', onClick: (event) => console.log(event, 'Hack!!', this) }),
+          Button({ label: 'RELOAD', onClick: () => init() })
+        ]
+      });
 
       // Always contains in screen and stay bottom
       player.addEventListener('resize', stayBottom(iframe));

@@ -2,6 +2,7 @@ const EventTarget = require('event-target-shim');
 const erd = require('element-resize-detector')({
   strategy: "scroll" //<- For ultra performance.
 });
+const raf = require('raf');
 
 const Button = require('./Button');
 const getElementRect = require('./getElementRect');
@@ -35,26 +36,21 @@ class Player extends EventTarget {
     this.addEventListener('render', this._onrender);
     this.addEventListener('resize', this._onresize);
 
-    this.state = {
-      // examples
-      buttons: [
-        Button({ label: 'HACK', onClick: (event) => console.log(event, 'Hack!!', this) }),
-        Button({ label: 'RELOAD', onClick: () => props.init(this) })
-      ]
+    var dirty = true;
+    this.setRenderProps = (change) => {
+      this.renderProps = Object.assign({}, this.renderProps, change);
+      dirty = true;
     };
-
+    const renderIfNeeded = () => {
+      dirty = dirty && this.renderSync() || false;
+      raf(renderIfNeeded);
+    };
+    raf(renderIfNeeded);
   }
 
-  setState(change) {
-    this.state = Object.assign({}, this.state, change);
-    this.renderSync();
-  }
-
-  renderSync(props = {}) {
-    props = Object.assign({}, this.state, props);
+  renderSync() {
     this.dispatchEvent(new Event('beforerender'));
-    this.container.innerHTML = content.render(props, {button});
-
+    this.container.innerHTML = content.render(this.renderProps, {button});
     this.dispatchEvent(new Event('render'));
   }
 

@@ -1,3 +1,5 @@
+const Immutable = require('immutable');
+
 const Player = require('./Player');
 const makeIFrame = require('./makeIFrame');
 const makeEditor = require('./makeEditor');
@@ -35,14 +37,20 @@ const init = (namespace) => {
           });
       };
 
+      const togglePanel = () => {
+        const current = player.panel.get('visibility');
+        const next = current === 'visible' ? 'hidden' : 'visible';
+        player.panel = player.panel.set('visibility', next);
+      };
+
       // An instance of h4p.Player
       const player = new Player({container, namespace});
-      player.setRenderProps({
-        // examples
-        buttons: [
-          Button({ label: 'HACK', onClick: (event) => console.log(event, 'Hack!!', this) }),
-          Button({ label: 'RELOAD', onClick: () => init() })
-        ]
+      player.menuButtons = Immutable.List.of(
+        Button({ label: 'HACK', onClick: togglePanel }),
+        Button({ label: 'RELOAD', onClick: init })
+      );
+      player.panel = Immutable.Map({
+        visibility: 'visible'
       });
 
       // Always contains in screen and stay bottom
@@ -50,6 +58,7 @@ const init = (namespace) => {
       player.addEventListener('editor.resize', (event) => {
         const editorElement = editor.display.wrapper;
         const editorRect = event.editorRect;
+        editorElement.style.visibility = event.editorVisibility;
         editorElement.style.top = editorRect.top + 'px';
         editorElement.style.left = editorRect.left + 'px';
         editor.setSize(editorRect.width, editorRect.height);

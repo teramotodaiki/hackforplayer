@@ -1,3 +1,4 @@
+const Immutable = require('immutable');
 const EventTarget = require('event-target-shim');
 const erd = require('element-resize-detector')({
   strategy: "scroll" //<- For ultra performance.
@@ -34,21 +35,37 @@ class Player extends EventTarget {
     this.addEventListener('render', this._onrender);
     this.addEventListener('resize', this._onresize);
 
-    var dirty = true;
-    this.setRenderProps = (change) => {
-      this.renderProps = Object.assign({}, this.renderProps, change);
-      dirty = true;
-    };
+    var preventProps = null;
+    this.renderProps = Immutable.Map();
     const renderIfNeeded = () => {
-      dirty = dirty && this.renderSync() || false;
+      if (preventProps !== this.renderProps) {
+        this.renderSync();
+      }
+      preventProps = this.renderProps;
       raf(renderIfNeeded);
     };
     raf(renderIfNeeded);
   }
 
+  get panel() {
+    return this.renderProps.get('panel');
+  }
+
+  set panel(value) {
+    return this.renderProps = this.renderProps.set('panel', value);
+  }
+
+  get menuButtons() {
+    return this.renderProps.get('menuButtons');
+  }
+
+  set menuButtons(value) {
+    return this.renderProps = this.renderProps.set('menuButtons', value);
+  }
+
   renderSync() {
     this.dispatchEvent(new Event('beforerender'));
-    this.container.innerHTML = content.render(this.renderProps, {button, editor});
+    this.container.innerHTML = content.render(this.renderProps.toJS(), {button, editor});
     this.dispatchEvent(new Event('render'));
   }
 
@@ -115,6 +132,7 @@ class Player extends EventTarget {
     const event = new Event(partial + '.resize');
     event.screenRect = getElementRect(screen);
     event.editorRect = getElementRect(editor);
+    event.editorVisibility = getComputedStyle(editor).visibility;
     event.contentSize = this.getContentSize();
     this.dispatchEvent(event);
   }

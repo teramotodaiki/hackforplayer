@@ -26,6 +26,7 @@
     "codemirror": "^5.18.2",
     "element-resize-detector": "^1.1.7",
     "event-target-shim": "^1.1.1",
-    "hogan.js": "^3.0.2"
+    "hogan.js": "^3.0.2",
+    "immutable": "^3.8.1"
   }
 }

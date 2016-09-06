@@ -1,3 +1,5 @@
+const Immutable = require('immutable');
+
 const Player = require('./Player');
 const makeIFrame = require('./makeIFrame');
 const makeEditor = require('./makeEditor');
@@ -37,12 +39,11 @@ const init = (namespace) => {
 
       // An instance of h4p.Player
       const player = new Player({container, namespace});
-      player.setRenderProps({
-        // examples
-        buttons: [
-          Button({ label: 'HACK', onClick: (event) => console.log(event, 'Hack!!', this) }),
-          Button({ label: 'RELOAD', onClick: () => init() })
-        ]
+      player.menuButtons = Immutable.List.of(
+        Button({ label: 'RELOAD', onClick: init })
+      );
+      player.panel = Immutable.Map({
+        visibility: 'visible'
       });
 
       // Always contains in screen and stay bottom

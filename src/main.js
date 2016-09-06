@@ -6,6 +6,8 @@ const makeEditor = require('./makeEditor');
 const stayBottom = require('./stayBottom');
 const Button = require('./Button');
 
+require('../scss/main.scss');
+
 const src = 'http://localhost:3000/index.html';
 
 const init = (namespace) => {

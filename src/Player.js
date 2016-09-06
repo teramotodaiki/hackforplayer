@@ -8,6 +8,7 @@ const raf = require('raf');
 const getElementRect = require('./getElementRect');
 const content = require('../templates/').content;
 const button = require('../templates/').button;
+const dock = require('../templates/').dock;
 const editor = require('../templates/').editor;
 
 class Player extends EventTarget {
@@ -47,12 +48,12 @@ class Player extends EventTarget {
     raf(renderIfNeeded);
   }
 
-  get panel() {
-    return this.renderProps.get('panel');
+  get dock() {
+    return this.renderProps.get('dock');
   }
 
-  set panel(value) {
-    return this.renderProps = this.renderProps.set('panel', value);
+  set dock(value) {
+    this.renderProps = this.renderProps.set('dock', value);
   }
 
   get menuButtons() {

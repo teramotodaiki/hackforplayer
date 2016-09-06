@@ -38,9 +38,9 @@ const init = (namespace) => {
       };
 
       const togglePanel = () => {
-        const current = player.panel.get('visibility');
+        const current = player.dock.get('visibility');
         const next = current === 'visible' ? 'hidden' : 'visible';
-        player.panel = player.panel.set('visibility', next);
+        player.dock = player.dock.set('visibility', next);
       };
 
       // An instance of h4p.Player
@@ -49,8 +49,8 @@ const init = (namespace) => {
         Button({ label: 'HACK', onClick: togglePanel }),
         Button({ label: 'RELOAD', onClick: init })
       );
-      player.panel = Immutable.Map({
-        visibility: 'visible'
+      player.dock = Immutable.Map({
+        visibility: 'visible',
       });
 
       // Always contains in screen and stay bottom

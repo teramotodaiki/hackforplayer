@@ -43,7 +43,6 @@ class Player extends EventTarget {
       ]
     };
 
-    props.init(this); // Initialize player
   }
 
   setState(change) {

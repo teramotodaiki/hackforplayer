@@ -7,6 +7,7 @@ const raf = require('raf');
 const getElementRect = require('./getElementRect');
 const content = require('../templates/').content;
 const button = require('../templates/').button;
+const editor = require('../templates/').editor;
 
 class Player extends EventTarget {
 
@@ -49,7 +50,7 @@ class Player extends EventTarget {
 
   renderSync() {
     this.dispatchEvent(new Event('beforerender'));
-    this.container.innerHTML = content.render(this.renderProps, {button});
+    this.container.innerHTML = content.render(this.renderProps, {button, editor});
     this.dispatchEvent(new Event('render'));
   }
 

@@ -45,6 +45,9 @@ const init = (namespace) => {
         player.dock = player.dock.set('visibility', next);
       };
 
+      const alignDock = (align) =>
+        () => player.dock = player.dock.set('align', align);
+
       // An instance of h4p.Player
       const player = new Player({container, namespace});
       player.menuButtons = Immutable.List.of(
@@ -55,6 +58,12 @@ const init = (namespace) => {
         visibility: 'visible',
         align: 'right'
       });
+      player.editorButtons = Immutable.List.of(
+        Button({ label: 'T', onClick: alignDock('top') }),
+        Button({ label: 'R', onClick: alignDock('right') }),
+        Button({ label: 'B', onClick: alignDock('bottom') }),
+        Button({ label: 'L', onClick: alignDock('left') })
+      );
 
       // Always contains in screen and stay bottom
       player.addEventListener('screen.resize', stayBottom(iframe));

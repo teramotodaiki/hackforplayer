@@ -61,7 +61,15 @@ class Player extends EventTarget {
   }
 
   set menuButtons(value) {
-    return this.renderProps = this.renderProps.set('menuButtons', value);
+    this.renderProps = this.renderProps.set('menuButtons', value);
+  }
+
+  get editorButtons() {
+    return this.renderProps.get('editorButtons');
+  }
+
+  set editorButtons(value) {
+    this.renderProps = this.renderProps.set('editorButtons', value);
   }
 
   renderSync() {

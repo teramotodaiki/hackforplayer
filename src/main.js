@@ -1,5 +1,6 @@
 const Player = require('./Player');
 const makeIFrame = require('./makeIFrame');
+const makeEditor = require('./makeEditor');
 const stayBottom = require('./stayBottom');
 const Button = require('./Button');
 
@@ -15,9 +16,14 @@ const init = (namespace) => {
       // An iframe element as a sigleton
       const iframe = makeIFrame();
 
+      // An editor instance as a singleton
+      const editor = makeEditor();
+
       // Inline script
       const query = container.getAttribute('data-target');
       const code = query && document.querySelector(query).textContent;
+
+      editor.setValue(code.replace(/\n    /g, '\n').substr(1));
 
       // Initializer
       const init = () => {
@@ -40,7 +46,14 @@ const init = (namespace) => {
       });
 
       // Always contains in screen and stay bottom
-      player.addEventListener('resize', stayBottom(iframe));
+      player.addEventListener('screen.resize', stayBottom(iframe));
+      player.addEventListener('editor.resize', (event) => {
+        const editorElement = editor.display.wrapper;
+        const editorRect = event.editorRect;
+        editorElement.style.top = editorRect.top + 'px';
+        editorElement.style.left = editorRect.left + 'px';
+        editor.setSize(editorRect.width, editorRect.height);
+      });
 
       init();
 

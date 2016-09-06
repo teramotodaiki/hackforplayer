@@ -17,10 +17,13 @@
   },
   "homepage": "https://github.com/teramotodaiki/hackforplayer#readme",
   "devDependencies": {
+    "css-loader": "^0.25.0",
     "raf": "^3.3.0",
+    "style-loader": "^0.13.1",
     "webpack": "^1.13.2"
   },
   "dependencies": {
+    "codemirror": "^5.18.2",
     "element-resize-detector": "^1.1.7",
     "event-target-shim": "^1.1.1",
     "hogan.js": "^3.0.2"

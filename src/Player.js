@@ -7,6 +7,7 @@ const raf = require('raf');
 const getElementRect = require('./getElementRect');
 const content = require('../templates/').content;
 const button = require('../templates/').button;
+const editor = require('../templates/').editor;
 
 class Player extends EventTarget {
 
@@ -16,14 +17,12 @@ class Player extends EventTarget {
     this.container = props.container;
     this.selectors = require('./selectors')(props.namespace);
 
-    this._dispatchResizeEvent = this._dispatchResizeEvent.bind(this);
-
     var width = 300, height = 150;
     this.getContentSize = () => ({ width, height });
     this.addEventListener('resize.message', () => {
       width = event.data.width;
       height = event.data.height;
-      this._dispatchResizeEvent();
+      this._dispatchResizeEvent('screen');
     });
 
     // cannot access port directly
@@ -49,7 +48,7 @@ class Player extends EventTarget {
 
   renderSync() {
     this.dispatchEvent(new Event('beforerender'));
-    this.container.innerHTML = content.render(this.renderProps, {button});
+    this.container.innerHTML = content.render(this.renderProps, {button, editor});
     this.dispatchEvent(new Event('render'));
   }
 
@@ -97,18 +96,25 @@ class Player extends EventTarget {
 
   _onrender() {
     const screen = this.container.querySelector(this.selectors.screen);
-    if (!screen) return;
+    const editor = this.container.querySelector(this.selectors.editor);
+    if (!screen || !editor) return;
 
-    erd.listenTo(screen, this._dispatchResizeEvent);
-    this.addEventListener('beforerender', () => erd.uninstall(screen));
+    erd.listenTo(screen, () => this._dispatchResizeEvent('screen'));
+    erd.listenTo(editor, () => this._dispatchResizeEvent('editor'));
+    this.addEventListener('beforerender', () => {
+      erd.uninstall(screen);
+      erd.uninstall(editor);
+    });
   }
 
-  _dispatchResizeEvent() {
+  _dispatchResizeEvent(partial) {
     const screen = this.container.querySelector(this.selectors.screen);
-    if (!screen) return;
+    const editor = this.container.querySelector(this.selectors.editor);
+    if (!screen || !editor) return;
 
-    const event = new Event('resize');
+    const event = new Event(partial + '.resize');
     event.screenRect = getElementRect(screen);
+    event.editorRect = getElementRect(editor);
     event.contentSize = this.getContentSize();
     this.dispatchEvent(event);
   }

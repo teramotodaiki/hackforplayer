@@ -30,7 +30,6 @@ const init = (namespace) => {
       };
 
       // An instance of h4p.Player
-      player.render(); // Render it and load iframe src.
       const player = new Player({container, namespace});
       player.setRenderProps({
         // examples

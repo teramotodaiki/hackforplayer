@@ -51,6 +51,7 @@ const init = (namespace) => {
       );
       player.dock = Immutable.Map({
         visibility: 'visible',
+        align: 'right'
       });
 
       // Always contains in screen and stay bottom

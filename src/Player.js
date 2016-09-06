@@ -66,7 +66,7 @@ class Player extends EventTarget {
 
   renderSync() {
     this.dispatchEvent(new Event('beforerender'));
-    this.container.innerHTML = content.render(this.renderProps.toJS(), {button, editor});
+    this.container.innerHTML = content.render(this.renderProps.toJS(), {button, editor, dock});
     this.dispatchEvent(new Event('render'));
   }
 

@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/teramotodaiki/hackforplayer#readme",
   "devDependencies": {
+    "css-loader": "^0.25.0",
     "raf": "^3.3.0",
+    "style-loader": "^0.13.1",
     "webpack": "^1.13.2"
   },
   "dependencies": {

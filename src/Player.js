@@ -132,6 +132,7 @@ class Player extends EventTarget {
     const event = new Event(partial + '.resize');
     event.screenRect = getElementRect(screen);
     event.editorRect = getElementRect(editor);
+    event.editorVisibility = getComputedStyle(editor).visibility;
     event.contentSize = this.getContentSize();
     this.dispatchEvent(event);
   }

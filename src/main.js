@@ -58,6 +58,7 @@ const init = (namespace) => {
       player.addEventListener('editor.resize', (event) => {
         const editorElement = editor.display.wrapper;
         const editorRect = event.editorRect;
+        editorElement.style.visibility = event.editorVisibility;
         editorElement.style.top = editorRect.top + 'px';
         editorElement.style.left = editorRect.left + 'px';
         editor.setSize(editorRect.width, editorRect.height);

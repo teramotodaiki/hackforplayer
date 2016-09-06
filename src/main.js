@@ -6,6 +6,8 @@ const makeEditor = require('./makeEditor');
 const stayBottom = require('./stayBottom');
 const Button = require('./Button');
 
+require('../scss/main.scss');
+
 const src = 'http://localhost:3000/index.html';
 
 const init = (namespace) => {
@@ -38,10 +40,13 @@ const init = (namespace) => {
       };
 
       const togglePanel = () => {
-        const current = player.panel.get('visibility');
+        const current = player.dock.get('visibility');
         const next = current === 'visible' ? 'hidden' : 'visible';
-        player.panel = player.panel.set('visibility', next);
+        player.dock = player.dock.set('visibility', next);
       };
+
+      const alignDock = (align) =>
+        () => player.dock = player.dock.set('align', align);
 
       // An instance of h4p.Player
       const player = new Player({container, namespace});
@@ -49,9 +54,16 @@ const init = (namespace) => {
         Button({ label: 'HACK', onClick: togglePanel }),
         Button({ label: 'RELOAD', onClick: init })
       );
-      player.panel = Immutable.Map({
-        visibility: 'visible'
+      player.dock = Immutable.Map({
+        visibility: 'visible',
+        align: 'right'
       });
+      player.editorButtons = Immutable.List.of(
+        Button({ label: 'T', onClick: alignDock('top') }),
+        Button({ label: 'R', onClick: alignDock('right') }),
+        Button({ label: 'B', onClick: alignDock('bottom') }),
+        Button({ label: 'L', onClick: alignDock('left') })
+      );
 
       // Always contains in screen and stay bottom
       player.addEventListener('screen.resize', stayBottom(iframe));

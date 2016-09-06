@@ -52,7 +52,7 @@
 	const stayBottom = __webpack_require__(43);
 	const Button = __webpack_require__(44);
 
-	__webpack_require__(47);
+	__webpack_require__(46);
 
 	const src = 'http://localhost:3000/index.html';
 
@@ -8671,7 +8671,7 @@
 /* 30 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"h4p__dock dock-");t.b(t.v(t.d("dock.align",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"background-color: gray; visibility: ");t.b(t.v(t.d("panel.visibility",c,p,0)));t.b("\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"h4p__sizer dock__sizer\"");t.b("\n" + i);t.b("    style=\"background-color: blue;\"");t.b("\n" + i);t.b("  ></div>");t.b("\n" + i);t.b(t.rp("<editor0",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<editor0":{name:"editor", partials: {}, subs: {  }}}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"h4p__dock dock-");t.b(t.v(t.d("dock.align",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"background-color: gray; visibility: ");t.b(t.v(t.d("dock.visibility",c,p,0)));t.b("\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"h4p__sizer dock__sizer\"");t.b("\n" + i);t.b("    style=\"background-color: blue;\"");t.b("\n" + i);t.b("  ></div>");t.b("\n" + i);t.b(t.rp("<editor0",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<editor0":{name:"editor", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
 /* 31 */
@@ -18889,24 +18889,10 @@
 /* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(41)();
-	// imports
-
-
-	// module
-	exports.push([module.id, ".dock-top {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: column-reverse;\n  z-index: 1;\n  width: 100vw;\n  height: 50vh;\n  top: 0;\n  left: 0; }\n  .dock-top .dock__sizer {\n    width: 100%;\n    height: 1px; }\n\n.dock-right {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: row;\n  z-index: 1;\n  width: 50vw;\n  height: 100vh;\n  right: 0;\n  bottom: 0; }\n  .dock-right .dock__sizer {\n    width: 1px;\n    height: 100%; }\n\n.dock-bottom {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: column;\n  z-index: 1;\n  width: 100vw;\n  height: 50vh;\n  right: 0;\n  bottom: 0; }\n  .dock-bottom .dock__sizer {\n    width: 100%;\n    height: 1px; }\n\n.dock-left {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: row-reverse;\n  z-index: 1;\n  width: 50vw;\n  height: 100vh;\n  top: 0;\n  left: 0; }\n  .dock-left .dock__sizer {\n    width: 1px;\n    height: 100%; }\n", ""]);
-
-	// exports
-
-
-/***/ },
-/* 47 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(46);
+	var content = __webpack_require__(47);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(42)(content, {});
@@ -18924,6 +18910,20 @@
 		// When the module is disposed, remove the <style> tags
 		module.hot.dispose(function() { update(); });
 	}
+
+/***/ },
+/* 47 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(41)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".dock-top {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: column-reverse;\n  z-index: 1;\n  width: 100vw;\n  height: 50vh;\n  top: 0;\n  left: 0; }\n  .dock-top .dock__sizer {\n    width: 100%;\n    height: 1px; }\n\n.dock-right {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: row;\n  z-index: 1;\n  width: 50vw;\n  height: 100vh;\n  right: 0;\n  bottom: 0; }\n  .dock-right .dock__sizer {\n    width: 1px;\n    height: 100%; }\n\n.dock-bottom {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: column;\n  z-index: 1;\n  width: 100vw;\n  height: 50vh;\n  right: 0;\n  bottom: 0; }\n  .dock-bottom .dock__sizer {\n    width: 100%;\n    height: 1px; }\n\n.dock-left {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: row-reverse;\n  z-index: 1;\n  width: 50vw;\n  height: 100vh;\n  top: 0;\n  left: 0; }\n  .dock-left .dock__sizer {\n    width: 1px;\n    height: 100%; }\n", ""]);
+
+	// exports
+
 
 /***/ }
 /******/ ]);

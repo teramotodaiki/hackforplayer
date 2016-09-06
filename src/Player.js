@@ -17,14 +17,12 @@ class Player extends EventTarget {
     this.container = props.container;
     this.selectors = require('./selectors')(props.namespace);
 
-    this._dispatchResizeEvent = this._dispatchResizeEvent.bind(this);
-
     var width = 300, height = 150;
     this.getContentSize = () => ({ width, height });
     this.addEventListener('resize.message', () => {
       width = event.data.width;
       height = event.data.height;
-      this._dispatchResizeEvent();
+      this._dispatchResizeEvent('screen');
     });
 
     // cannot access port directly
@@ -100,16 +98,18 @@ class Player extends EventTarget {
     const screen = this.container.querySelector(this.selectors.screen);
     if (!screen) return;
 
-    erd.listenTo(screen, this._dispatchResizeEvent);
     this.addEventListener('beforerender', () => erd.uninstall(screen));
+    erd.listenTo(screen, () => this._dispatchResizeEvent('screen'));
   }
 
-  _dispatchResizeEvent() {
+  _dispatchResizeEvent(partial) {
     const screen = this.container.querySelector(this.selectors.screen);
-    if (!screen) return;
+    const editor = this.container.querySelector(this.selectors.editor);
+    if (!screen || !editor) return;
 
-    const event = new Event('resize');
+    const event = new Event(partial + '.resize');
     event.screenRect = getElementRect(screen);
+    event.editorRect = getElementRect(editor);
     event.contentSize = this.getContentSize();
     this.dispatchEvent(event);
   }

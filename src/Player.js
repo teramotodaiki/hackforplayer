@@ -96,10 +96,15 @@ class Player extends EventTarget {
 
   _onrender() {
     const screen = this.container.querySelector(this.selectors.screen);
-    if (!screen) return;
+    const editor = this.container.querySelector(this.selectors.editor);
+    if (!screen || !editor) return;
 
-    this.addEventListener('beforerender', () => erd.uninstall(screen));
     erd.listenTo(screen, () => this._dispatchResizeEvent('screen'));
+    erd.listenTo(editor, () => this._dispatchResizeEvent('editor'));
+    this.addEventListener('beforerender', () => {
+      erd.uninstall(screen);
+      erd.uninstall(editor);
+    });
   }
 
   _dispatchResizeEvent(partial) {

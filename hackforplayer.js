@@ -50,22 +50,22 @@
 	const stayBottom = __webpack_require__(15);
 	const coverAll = __webpack_require__(17);
 	const Button = __webpack_require__(18);
-	const Sizer = __webpack_require__(50);
-	const partial = __webpack_require__(20);
+	const Sizer = __webpack_require__(20);
+	const partial = __webpack_require__(21);
 
-	const erd = __webpack_require__(28)({
+	const erd = __webpack_require__(29)({
 	  strategy: "scroll" //<- For ultra performance.
 	});
 
 
-	const DomInterface = __webpack_require__(41);
+	const DomInterface = __webpack_require__(42);
 
-	__webpack_require__(47);
+	__webpack_require__(48);
 
 	const src = 'http://localhost:3000/index.html';
 
 	const init = (namespace) => {
-	  const selectors = __webpack_require__(49)(namespace);
+	  const selectors = __webpack_require__(50)(namespace);
 	  const containers = document.querySelectorAll(selectors.container);
 
 	  const players =
@@ -11049,18 +11049,29 @@
 /* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Hogan = __webpack_require__(21);
+	const on = __webpack_require__(19)('h4p').on;
 
-	module.exports = {
-	  content: new Hogan.Template(__webpack_require__(24)),
-	  button: new Hogan.Template(__webpack_require__(25)),
-	  dock: new Hogan.Template(__webpack_require__(26)),
-	  editor: new Hogan.Template(__webpack_require__(27))
-	};
+	module.exports = (props) => Object.assign({}, props, {
+	  onDragEnd: props.onDragEnd ? on(props.onDragEnd) : null
+	});
 
 
 /***/ },
 /* 21 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const Hogan = __webpack_require__(22);
+
+	module.exports = {
+	  content: new Hogan.Template(__webpack_require__(25)),
+	  button: new Hogan.Template(__webpack_require__(26)),
+	  dock: new Hogan.Template(__webpack_require__(27)),
+	  editor: new Hogan.Template(__webpack_require__(28))
+	};
+
+
+/***/ },
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -11080,14 +11091,14 @@
 
 	// This file is for use with Node.js. See dist/ for browser files.
 
-	var Hogan = __webpack_require__(22);
-	Hogan.Template = __webpack_require__(23).Template;
+	var Hogan = __webpack_require__(23);
+	Hogan.Template = __webpack_require__(24).Template;
 	Hogan.template = Hogan.Template;
 	module.exports = Hogan;
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -11516,7 +11527,7 @@
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -11863,48 +11874,48 @@
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports) {
 
 	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.screen",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("classNames.menu_buttons",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);if(t.s(t.f("menuButtons",c,p,1),c,p,0,354,378,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b(t.rp("<dock1",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }},"<dock1":{name:"dock", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports) {
 
 	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<button onClick=\"");t.b(t.v(t.f("onClick",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  ");t.b(t.v(t.f("label",c,p,0)));t.b("\n" + i);t.b("</button>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports) {
 
 	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.dock",c,p,0)));t.b(" dock-");t.b(t.v(t.d("dock.align",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"background-color: gray; visibility: ");t.b(t.v(t.d("dock.visibility",c,p,0)));t.b("; width: ");t.b(t.v(t.d("dock.width",c,p,0)));t.b("; height: ");t.b(t.v(t.d("dock.height",c,p,0)));t.b("\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("classNames.sizer",c,p,0)));t.b(" dock__sizer\"");t.b("\n" + i);t.b("    style=\"background-color: blue;\"");t.b("\n" + i);t.b("    draggable=\"true\"");t.b("\n" + i);t.b("    onDragEnd=\"");t.b(t.v(t.d("dock.sizer.onDragEnd",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  ></div>");t.b("\n" + i);t.b(t.rp("<editor0",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<editor0":{name:"editor", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports) {
 
 	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.editor_wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"display: flex; flex-direction: column; justify-content: stretch; flex: 1 1 auto; background-color: green; \"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editor_buttons",c,p,0)));t.b("\">");t.b("\n" + i);if(t.s(t.f("editorButtons",c,p,1),c,p,0,232,256,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editor",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var forEach                 = __webpack_require__(29).forEach;
-	var elementUtilsMaker       = __webpack_require__(30);
-	var listenerHandlerMaker    = __webpack_require__(31);
-	var idGeneratorMaker        = __webpack_require__(32);
-	var idHandlerMaker          = __webpack_require__(33);
-	var reporterMaker           = __webpack_require__(34);
-	var browserDetector         = __webpack_require__(35);
-	var batchProcessorMaker     = __webpack_require__(36);
-	var stateHandler            = __webpack_require__(38);
+	var forEach                 = __webpack_require__(30).forEach;
+	var elementUtilsMaker       = __webpack_require__(31);
+	var listenerHandlerMaker    = __webpack_require__(32);
+	var idGeneratorMaker        = __webpack_require__(33);
+	var idHandlerMaker          = __webpack_require__(34);
+	var reporterMaker           = __webpack_require__(35);
+	var browserDetector         = __webpack_require__(36);
+	var batchProcessorMaker     = __webpack_require__(37);
+	var stateHandler            = __webpack_require__(39);
 
 	//Detection strategies.
-	var objectStrategyMaker     = __webpack_require__(39);
-	var scrollStrategyMaker     = __webpack_require__(40);
+	var objectStrategyMaker     = __webpack_require__(40);
+	var scrollStrategyMaker     = __webpack_require__(41);
 
 	function isCollection(obj) {
 	    return Array.isArray(obj) || obj.length !== undefined;
@@ -12212,7 +12223,7 @@
 
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12237,7 +12248,7 @@
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12295,7 +12306,7 @@
 
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12355,7 +12366,7 @@
 
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12379,7 +12390,7 @@
 
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12432,7 +12443,7 @@
 
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12480,7 +12491,7 @@
 	};
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12525,12 +12536,12 @@
 
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var utils = __webpack_require__(37);
+	var utils = __webpack_require__(38);
 
 	module.exports = function batchProcessorMaker(options) {
 	    options             = options || {};
@@ -12669,7 +12680,7 @@
 
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12690,7 +12701,7 @@
 
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -12718,7 +12729,7 @@
 
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -12728,7 +12739,7 @@
 
 	"use strict";
 
-	var browserDetector = __webpack_require__(35);
+	var browserDetector = __webpack_require__(36);
 
 	module.exports = function(options) {
 	    options             = options || {};
@@ -12937,7 +12948,7 @@
 
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -12947,7 +12958,7 @@
 
 	"use strict";
 
-	var forEach = __webpack_require__(29).forEach;
+	var forEach = __webpack_require__(30).forEach;
 
 	module.exports = function(options) {
 	    options             = options || {};
@@ -13558,16 +13569,16 @@
 
 
 /***/ },
-/* 41 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Map = __webpack_require__(42).Map;
-	const List = __webpack_require__(42).List;
-	const erd = __webpack_require__(28)({
+	const Map = __webpack_require__(43).Map;
+	const List = __webpack_require__(43).List;
+	const erd = __webpack_require__(29)({
 	  strategy: "scroll" //<- For ultra performance.
 	});
 
-	const RendererInterface = __webpack_require__(43);
+	const RendererInterface = __webpack_require__(44);
 	const getElementRect = __webpack_require__(16);
 
 	class DomInterface extends RendererInterface {
@@ -13689,7 +13700,7 @@
 
 
 /***/ },
-/* 42 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -18673,11 +18684,11 @@
 	}));
 
 /***/ },
-/* 43 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	const EventTarget = __webpack_require__(2);
-	const raf = __webpack_require__(44);
+	const raf = __webpack_require__(45);
 
 	class RendererInterface extends EventTarget {
 	  constructor() {
@@ -18705,10 +18716,10 @@
 
 
 /***/ },
-/* 44 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(45)
+	/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(46)
 	  , root = typeof window === 'undefined' ? global : window
 	  , vendors = ['moz', 'webkit']
 	  , suffix = 'AnimationFrame'
@@ -18784,7 +18795,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 45 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Generated by CoffeeScript 1.7.1
@@ -18820,10 +18831,10 @@
 
 	}).call(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(46)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(47)))
 
 /***/ },
-/* 46 */
+/* 47 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -19009,13 +19020,13 @@
 
 
 /***/ },
-/* 47 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(48);
+	var content = __webpack_require__(49);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(14)(content, {});
@@ -19035,7 +19046,7 @@
 	}
 
 /***/ },
-/* 48 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(13)();
@@ -19049,7 +19060,7 @@
 
 
 /***/ },
-/* 49 */
+/* 50 */
 /***/ function(module, exports) {
 
 	const suffixes = {
@@ -19073,17 +19084,6 @@
 	  return selectors;
 
 	};
-
-
-/***/ },
-/* 50 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const on = __webpack_require__(19)('h4p').on;
-
-	module.exports = (props) => Object.assign({}, props, {
-	  onDragEnd: props.onDragEnd ? on(props.onDragEnd) : null
-	});
 
 
 /***/ }

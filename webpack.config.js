@@ -1,3 +1,5 @@
+const WebpackNotifierPlugin = require('webpack-notifier');
+
 module.exports = {
   entry: './src/main.js',
   output: {
@@ -14,5 +16,8 @@ module.exports = {
         loaders: ["style", "css", "sass"]
       }
     ]
-  }
+  },
+  plugins: [
+    new WebpackNotifierPlugin()
+  ]
 };

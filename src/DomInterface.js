@@ -31,7 +31,7 @@ class DomInterface extends RendererInterface {
     if (!this.selectors) return;
     this.refs = new Map(this.selectors)
       .filter(item => typeof item === 'string')
-      .map(item => console.log(this.container) || this.container.querySelector(item))
+      .map(item => this.container.querySelector(item))
       .toJS();
 
     this.dispatchEvent(new Event('render'));
@@ -41,15 +41,12 @@ class DomInterface extends RendererInterface {
     this.observed
     .map(key => ({ key, ref: this.refs[key] }))
     .forEach(item => {
-      erd.listenTo(item.ref, () => this._dispatchResizeEvent(item.key, item.ref));
+      erd.listenTo(item.ref, () => this._dispatchResizeEvent(item.key));
     });
   }
 
-  _dispatchResizeEvent(partial, element) {
-    const event = new Event(partial + '.resize');
-    event.rect = getElementRect(element);
-    event.visibility = getComputedStyle(element).visibility;
-    this.dispatchEvent(event);
+  _dispatchResizeEvent(partial) {
+    this.dispatchEvent(new Event(partial + '.resize'));
   }
 
   get container() {

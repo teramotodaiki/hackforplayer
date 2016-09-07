@@ -22,7 +22,8 @@
     "raf": "^3.3.0",
     "sass-loader": "^4.0.1",
     "style-loader": "^0.13.1",
-    "webpack": "^1.13.2"
+    "webpack": "^1.13.2",
+    "webpack-notifier": "^1.4.1"
   },
   "dependencies": {
     "codemirror": "^5.18.2",

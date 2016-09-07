@@ -1,6 +1,4 @@
-const Immutable = require('immutable');
-
-const suffixes = Immutable.Map({
+const suffixes = {
   container: '',
   wrapper: '__wrapper',
   screen: '__screen',
@@ -10,13 +8,14 @@ const suffixes = Immutable.Map({
   editorWrapper: '__editor_wrapper',
   editorButtons: '__editor_buttons',
   editor: '__editor'
-});
+};
 module.exports = (namespace = '.h4p') => {
 
-  const selectors = suffixes.map((suf) => namespace + suf);
+  const selectors = {};
+  Object.keys(suffixes).forEach(key => selectors[key] = namespace + suffixes[key]);
   const noDot = namespace.replace(/^\./, '');
-  const add = selectors.set('htmlClasses', suffixes.map((suf) => noDot + suf));
-  console.log(add.toJS());
-  return add;
+  selectors.htmlClass = {};
+  Object.keys(suffixes).forEach(key => selectors.htmlClass[key] = noDot + suffixes[key]);
+  return selectors;
 
 };

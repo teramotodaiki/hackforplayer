@@ -12,7 +12,7 @@ const src = 'http://localhost:3000/index.html';
 
 const init = (namespace) => {
   const selectors = require('./selectors')(namespace);
-  const containers = document.querySelectorAll(selectors.get('container'));
+  const containers = document.querySelectorAll(selectors.container);
 
   const players =
     Array.prototype.slice.call(containers)

@@ -22,6 +22,26 @@ class Player extends EventTarget {
     };
   }
 
+  start({dependencies = [], code = ''}) {
+    this.contentWindow.location.assign(this.src);
+    this.lastLoaded = { dependencies, code };
+    return this
+      .connect(this.contentWindow)
+      .then(() => {
+        this.postMessage({
+          method: 'require',
+          dependencies,
+          code,
+        });
+        return this;
+      });
+  }
+
+  restart() {
+    if (!this.lastLoaded) return;
+    return this.start(this.lastLoaded);
+  }
+
   standBy(contentWindow) {
     return new Promise((resolve, reject) => {
       addEventListener('message', function task(event) {
@@ -47,14 +67,6 @@ class Player extends EventTarget {
 
   postMessage() {
     throw new Error('Missing a port. It has not connected yet.');
-  }
-
-  start(dependencies = [], code = '') {
-    this.postMessage({
-      method: 'require',
-      dependencies,
-      code,
-    });
   }
 
   _setPort(next, current) {

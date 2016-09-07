@@ -4,6 +4,7 @@ const makeEditor = require('./makeEditor');
 const stayBottom = require('./stayBottom');
 const coverAll = require('./coverAll');
 const Button = require('./Button');
+const Sizer = require('./Sizer');
 const partial = require('../templates/');
 
 const erd = require('element-resize-detector')({
@@ -42,9 +43,27 @@ const init = (namespace) => {
       });
 
       dom.classNames = selectors.htmlClass;
+      const dragSizer = (event) => {
+        const left = (event.clientX / innerWidth * 100) >> 0;
+        const top = (event.clientY / innerHeight * 100) >> 0;
+        const dock = dom.dock;
+        const align = dock.align;
+
+        dom.dock = Object.assign({}, dom.dock, {
+          width:
+            align === 'top' || align === 'bottom' ? '100vw' :
+            align === 'left' ? (left + 'vw') : (100 - left + 'vw'),
+          height:
+            align === 'left' || align === 'right' ? '100vh' :
+            align === 'top' ? (top + 'vh') : (100 - top + 'vh')
+        });
+      };
       dom.dock = {
         visibility: 'visible',
-        align: 'right'
+        align: 'right',
+        width: '50vw',
+        height: '100vh',
+        sizer: Sizer({ onDragEnd: dragSizer })
       };
 
       const toggleDock = () => {
@@ -67,7 +86,11 @@ const init = (namespace) => {
       ];
 
       const alignDock = (align) =>
-        () => dom.dock = Object.assign({}, dom.dock, {align});
+        () => dom.dock = Object.assign({}, dom.dock, {
+          align,
+          width: align === 'top' || align === 'bottom' ? '100vw' : '50vw',
+          height: align === 'left' || align === 'right' ? '100vh' : '50vh'
+        });
       dom.editorButtons = [
         Button({ label: 'T', onClick: alignDock('top') }),
         Button({ label: 'R', onClick: alignDock('right') }),

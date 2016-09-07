@@ -1,10 +1,12 @@
 <div
   class="{{classNames.dock}} dock-{{dock.align}}"
-  style="background-color: gray; visibility: {{dock.visibility}}"
+  style="background-color: gray; visibility: {{dock.visibility}}; width: {{dock.width}}; height: {{dock.height}}"
 >
   <div
     class="{{classNames.sizer}} dock__sizer"
     style="background-color: blue;"
+    draggable="true"
+    onDragEnd="{{dock.sizer.onDragEnd}}"
   ></div>
   {{> editor}}
 </div>

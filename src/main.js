@@ -59,7 +59,7 @@ const init = (namespace) => {
         });
       };
       dom.dock = {
-        visibility: 'visible',
+        visibility: 'hidden',
         align: 'right',
         width: '50vw',
         height: '100vh',

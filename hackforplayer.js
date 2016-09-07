@@ -44,13 +44,20 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Immutable = __webpack_require__(1);
-
 	const Player = __webpack_require__(2);
 	const makeIFrame = __webpack_require__(34);
 	const makeEditor = __webpack_require__(36);
 	const stayBottom = __webpack_require__(43);
+	const coverAll = __webpack_require__(51);
 	const Button = __webpack_require__(44);
+	const partial = __webpack_require__(24);
+
+	const erd = __webpack_require__(7)({
+	  strategy: "scroll" //<- For ultra performance.
+	});
+
+
+	const DomInterface = __webpack_require__(49);
 
 	__webpack_require__(46);
 
@@ -58,23 +65,39 @@
 
 	const init = (namespace) => {
 	  const selectors = __webpack_require__(33)(namespace);
-	  const containers = document.querySelectorAll(selectors.get('container'));
+	  const containers = document.querySelectorAll(selectors.container);
 
 	  const players =
 	    Array.prototype.slice.call(containers)
 	    .map(container => {
+	      // An instance of h4p.Player
+	      const player = new Player();
+
 	      // An iframe element as a sigleton
 	      const iframe = makeIFrame();
 
 	      // An editor instance as a singleton
 	      const editor = makeEditor();
 
-	      // Inline script
-	      const query = container.getAttribute('data-target');
-	      const code = query && document.querySelector(query).textContent;
+	      // DOM renderer interface
+	      const dom = new DomInterface({
+	        container,
+	        selectors,
+	        template: partial.content,
+	        partial
+	      });
 
-	      editor.setValue(code.replace(/\n    /g, '\n').substr(1));
+	      dom.classNames = selectors.htmlClass;
+	      dom.dock = {
+	        visibility: 'visible',
+	        align: 'right'
+	      };
 
+	      const toggleDock = () => {
+	        const current = dom.dock.visibility;
+	        const visibility = current === 'visible' ? 'hidden' : 'visible';
+	        dom.dock = Object.assign({}, dom.dock, {visibility});
+	      };
 	      // Initializer
 	      const init = () => {
 	        iframe.contentWindow.location.assign(src);
@@ -84,43 +107,29 @@
 	            player.start([], code);
 	          });
 	      };
-
-	      const togglePanel = () => {
-	        const current = player.dock.get('visibility');
-	        const next = current === 'visible' ? 'hidden' : 'visible';
-	        player.dock = player.dock.set('visibility', next);
-	      };
+	      dom.menuButtons = [
+	        Button({ label: 'HACK', onClick: toggleDock }),
+	        Button({ label: 'RELOAD', onClick: init })
+	      ];
 
 	      const alignDock = (align) =>
-	        () => player.dock = player.dock.set('align', align);
-
-	      // An instance of h4p.Player
-	      const player = new Player({container, namespace});
-	      player.menuButtons = Immutable.List.of(
-	        Button({ label: 'HACK', onClick: togglePanel }),
-	        Button({ label: 'RELOAD', onClick: init })
-	      );
-	      player.dock = Immutable.Map({
-	        visibility: 'visible',
-	        align: 'right'
-	      });
-	      player.editorButtons = Immutable.List.of(
+	        () => dom.dock = Object.assign({}, dom.dock, {align});
+	      dom.editorButtons = [
 	        Button({ label: 'T', onClick: alignDock('top') }),
 	        Button({ label: 'R', onClick: alignDock('right') }),
 	        Button({ label: 'B', onClick: alignDock('bottom') }),
 	        Button({ label: 'L', onClick: alignDock('left') })
-	      );
+	      ];
 
-	      // Always contains in screen and stay bottom
-	      player.addEventListener('screen.resize', stayBottom(iframe));
-	      player.addEventListener('editor.resize', (event) => {
-	        const editorElement = editor.display.wrapper;
-	        const editorRect = event.editorRect;
-	        editorElement.style.visibility = event.editorVisibility;
-	        editorElement.style.top = editorRect.top + 'px';
-	        editorElement.style.left = editorRect.left + 'px';
-	        editor.setSize(editorRect.width, editorRect.height);
-	      });
+	      // Inline script
+	      const query = container.getAttribute('data-target');
+	      const code = query && document.querySelector(query).textContent;
+
+	      editor.setValue(code.replace(/\n    /g, '\n').substr(1));
+
+	      dom.addEventListener('screen.resize', stayBottom({dom, player, iframe}));
+	      player.addEventListener('resize.message', stayBottom({dom, player, iframe}));
+	      dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
 	      init();
 
@@ -5130,33 +5139,18 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Immutable = __webpack_require__(1);
 	const EventTarget = __webpack_require__(3);
-	const erd = __webpack_require__(7)({
-	  strategy: "scroll" //<- For ultra performance.
-	});
-	const raf = __webpack_require__(20);
-
-	const getElementRect = __webpack_require__(23);
-	const content = __webpack_require__(24).content;
-	const button = __webpack_require__(24).button;
-	const dock = __webpack_require__(24).dock;
-	const editor = __webpack_require__(24).editor;
 
 	class Player extends EventTarget {
 
-	  constructor(props) {
+	  constructor() {
 	    super();
-
-	    this.container = props.container;
-	    this.selectors = __webpack_require__(33)(props.namespace);
 
 	    var width = 300, height = 150;
 	    this.getContentSize = () => ({ width, height });
 	    this.addEventListener('resize.message', () => {
 	      width = event.data.width;
 	      height = event.data.height;
-	      this._dispatchResizeEvent('screen');
 	    });
 
 	    // cannot access port directly
@@ -5164,59 +5158,6 @@
 	    this.setPort = (value) => {
 	      port = this._setPort(value, port);
 	    };
-
-	    this.addEventListener('render', this._onrender);
-	    this.addEventListener('resize', this._onresize);
-
-	    var preventProps = null;
-	    this.renderProps = Immutable.Map({
-	      selectors: this.selectors.get('htmlClasses')
-	    });
-	    const renderIfNeeded = () => {
-	      if (preventProps !== this.renderProps) {
-	        this.renderSync();
-	      }
-	      preventProps = this.renderProps;
-	      raf(renderIfNeeded);
-	    };
-	    raf(renderIfNeeded);
-	  }
-
-	  get dock() {
-	    return this.renderProps.get('dock');
-	  }
-
-	  set dock(value) {
-	    this.renderProps = this.renderProps.set('dock', value);
-	  }
-
-	  get menuButtons() {
-	    return this.renderProps.get('menuButtons');
-	  }
-
-	  set menuButtons(value) {
-	    this.renderProps = this.renderProps.set('menuButtons', value);
-	  }
-
-	  get editorButtons() {
-	    return this.renderProps.get('editorButtons');
-	  }
-
-	  set editorButtons(value) {
-	    this.renderProps = this.renderProps.set('editorButtons', value);
-	  }
-
-	  renderSync() {
-	    this.dispatchEvent(new Event('beforerender'));
-	    this.container.innerHTML = content.render(this.renderProps.toJS(), {button, editor, dock});
-	    this.dispatchEvent(new Event('render'));
-	  }
-
-	  render(props) {
-	    return new Promise((resolve, reject) => {
-	      this.renderSync(props);
-	      resolve();
-	    });
 	  }
 
 	  standBy(contentWindow) {
@@ -5252,32 +5193,6 @@
 	      dependencies,
 	      code,
 	    });
-	  }
-
-	  _onrender() {
-	    const screen = this.container.querySelector(this.selectors.get('screen'));
-	    const editor = this.container.querySelector(this.selectors.get('editor'));
-	    if (!screen || !editor) return;
-
-	    erd.listenTo(screen, () => this._dispatchResizeEvent('screen'));
-	    erd.listenTo(editor, () => this._dispatchResizeEvent('editor'));
-	    this.addEventListener('beforerender', () => {
-	      erd.uninstall(screen);
-	      erd.uninstall(editor);
-	    });
-	  }
-
-	  _dispatchResizeEvent(partial) {
-	    const screen = this.container.querySelector(this.selectors.get('screen'));
-	    const editor = this.container.querySelector(this.selectors.get('editor'));
-	    if (!screen || !editor) return;
-
-	    const event = new Event(partial + '.resize');
-	    event.screenRect = getElementRect(screen);
-	    event.editorRect = getElementRect(editor);
-	    event.editorVisibility = getComputedStyle(editor).visibility;
-	    event.contentSize = this.getContentSize();
-	    this.dispatchEvent(event);
 	  }
 
 	  _setPort(next, current) {
@@ -8660,7 +8575,7 @@
 /* 28 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("selectors.wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("selectors.screen",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("selectors.menu_buttons",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);if(t.s(t.f("menuButtons",c,p,1),c,p,0,351,375,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b(t.rp("<dock1",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }},"<dock1":{name:"dock", partials: {}, subs: {  }}}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.screen",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("classNames.menu_buttons",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);if(t.s(t.f("menuButtons",c,p,1),c,p,0,354,378,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b(t.rp("<dock1",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }},"<dock1":{name:"dock", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
 /* 29 */
@@ -8672,22 +8587,20 @@
 /* 30 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("selectors.dock",c,p,0)));t.b(" dock-");t.b(t.v(t.d("dock.align",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"background-color: gray; visibility: ");t.b(t.v(t.d("dock.visibility",c,p,0)));t.b("\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("selectors.sizer",c,p,0)));t.b(" dock__sizer\"");t.b("\n" + i);t.b("    style=\"background-color: blue;\"");t.b("\n" + i);t.b("  ></div>");t.b("\n" + i);t.b(t.rp("<editor0",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<editor0":{name:"editor", partials: {}, subs: {  }}}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.dock",c,p,0)));t.b(" dock-");t.b(t.v(t.d("dock.align",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"background-color: gray; visibility: ");t.b(t.v(t.d("dock.visibility",c,p,0)));t.b("\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("classNames.sizer",c,p,0)));t.b(" dock__sizer\"");t.b("\n" + i);t.b("    style=\"background-color: blue;\"");t.b("\n" + i);t.b("  ></div>");t.b("\n" + i);t.b(t.rp("<editor0",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<editor0":{name:"editor", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
 /* 31 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("selectors.editor_wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"display: flex; flex-direction: column; justify-content: stretch; flex: 1 1 auto; background-color: green; \"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("selectors.editor_buttons",c,p,0)));t.b("\">");t.b("\n" + i);if(t.s(t.f("editorButtons",c,p,1),c,p,0,230,254,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("selectors.editor",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }}}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.editor_wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"display: flex; flex-direction: column; justify-content: stretch; flex: 1 1 auto; background-color: green; \"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editor_buttons",c,p,0)));t.b("\">");t.b("\n" + i);if(t.s(t.f("editorButtons",c,p,1),c,p,0,232,256,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editor",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
 /* 32 */,
 /* 33 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	const Immutable = __webpack_require__(1);
-
-	const suffixes = Immutable.Map({
+	const suffixes = {
 	  container: '',
 	  wrapper: '__wrapper',
 	  screen: '__screen',
@@ -8697,14 +8610,15 @@
 	  editorWrapper: '__editor_wrapper',
 	  editorButtons: '__editor_buttons',
 	  editor: '__editor'
-	});
+	};
 	module.exports = (namespace = '.h4p') => {
 
-	  const selectors = suffixes.map((suf) => namespace + suf);
+	  const selectors = {};
+	  Object.keys(suffixes).forEach(key => selectors[key] = namespace + suffixes[key]);
 	  const noDot = namespace.replace(/^\./, '');
-	  const add = selectors.set('htmlClasses', suffixes.map((suf) => noDot + suf));
-	  console.log(add.toJS());
-	  return add;
+	  selectors.htmlClass = {};
+	  Object.keys(suffixes).forEach(key => selectors.htmlClass[key] = noDot + suffixes[key]);
+	  return selectors;
 
 	};
 
@@ -18846,27 +18760,30 @@
 
 /***/ },
 /* 43 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports =
-	(iframe) =>
-	  (event) => {
-	    const screenRect = event.screenRect;
-	    const contentSize = event.contentSize;
+	const getElementRect = __webpack_require__(23);
 
-	    const ratio = (size) => Math.max(size.height, 1) / Math.max(size.width, 1);
-	    if (ratio(screenRect) > ratio(contentSize)) {
-	      iframe.width = screenRect.width;
-	      iframe.height = screenRect.width * ratio(contentSize);
-	      iframe.style.left = screenRect.left + 'px';
-	      iframe.style.top = screenRect.top + (screenRect.height - iframe.height) + 'px';
-	    } else {
-	      iframe.width = screenRect.height / ratio(contentSize);
-	      iframe.height = screenRect.height;
-	      iframe.style.left = screenRect.left + (screenRect.width - iframe.width) / 2 + 'px';
-	      iframe.style.top = screenRect.top + 'px';
-	    }
-	  };
+	module.exports = ({dom, player, iframe}) =>
+	() => {
+	  if (!dom.refs.screen) return;
+	  const screenRect = getElementRect(dom.refs.screen);
+	  const iframeRect = getElementRect(iframe);
+	  const contentSize = player.getContentSize();
+
+	  const ratio = (size) => Math.max(size.height, 1) / Math.max(size.width, 1);
+	  if (ratio(screenRect) > ratio(contentSize)) {
+	    iframe.width = screenRect.width;
+	    iframe.height = screenRect.width * ratio(contentSize);
+	    iframe.style.left = screenRect.left + 'px';
+	    iframe.style.top = screenRect.top + (screenRect.height - iframe.height) + 'px';
+	  } else {
+	    iframe.width = screenRect.height / ratio(contentSize);
+	    iframe.height = screenRect.height;
+	    iframe.style.left = screenRect.left + (screenRect.width - iframe.width) / 2 + 'px';
+	    iframe.style.top = screenRect.top + 'px';
+	  }
+	};
 
 
 /***/ },
@@ -18935,6 +18852,187 @@
 	exports.push([module.id, ".dock-top {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: column-reverse;\n  z-index: 1;\n  width: 100vw;\n  height: 50vh;\n  top: 0;\n  left: 0; }\n  .dock-top .dock__sizer {\n    width: 100%;\n    height: 1px; }\n\n.dock-right {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: row;\n  z-index: 1;\n  width: 50vw;\n  height: 100vh;\n  right: 0;\n  bottom: 0; }\n  .dock-right .dock__sizer {\n    width: 1px;\n    height: 100%; }\n\n.dock-bottom {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: column;\n  z-index: 1;\n  width: 100vw;\n  height: 50vh;\n  right: 0;\n  bottom: 0; }\n  .dock-bottom .dock__sizer {\n    width: 100%;\n    height: 1px; }\n\n.dock-left {\n  position: fixed;\n  display: flex;\n  flex: 1 1 auto;\n  justify-content: stretch;\n  flex-direction: row-reverse;\n  z-index: 1;\n  width: 50vw;\n  height: 100vh;\n  top: 0;\n  left: 0; }\n  .dock-left .dock__sizer {\n    width: 1px;\n    height: 100%; }\n", ""]);
 
 	// exports
+
+
+/***/ },
+/* 48 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const EventTarget = __webpack_require__(3);
+	const raf = __webpack_require__(20);
+
+	class RendererInterface extends EventTarget {
+	  constructor() {
+	    super();
+
+	    this.state = null;
+
+	    // Render if state changed
+	    var preventState = null;
+	    const renderIfNeeded = () => {
+	      if (preventState !== this.state) {
+	        this.render();
+	      }
+	      preventState = this.state;
+	      raf(renderIfNeeded);
+	    };
+
+	    this.start = () => raf(renderIfNeeded);
+	  }
+
+	  render() {}
+	}
+
+	module.exports = RendererInterface;
+
+
+/***/ },
+/* 49 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const Map = __webpack_require__(1).Map;
+	const List = __webpack_require__(1).List;
+	const erd = __webpack_require__(7)({
+	  strategy: "scroll" //<- For ultra performance.
+	});
+
+	const RendererInterface = __webpack_require__(48);
+	const getElementRect = __webpack_require__(23);
+
+	class DomInterface extends RendererInterface {
+	  constructor(initialState = {}) {
+	    super();
+
+	    this.state = new Map(initialState);
+
+	    this.observed = ['screen', 'editor']; // Detect resize event
+
+	    this.refs = {};
+	    this.addEventListener('render', this._onrender);
+
+	    this.start();
+	  }
+
+	  render() {
+	    // This is the simplest render implement.
+	    if (!this.template || !this.container) return;
+	    this.dispatchEvent(new Event('beforerender'));
+	    this.container.innerHTML =
+	      this.template.render(this.renderProps.toJS(), this.partial);
+
+	    if (!this.selectors) return;
+	    this.refs = new Map(this.selectors)
+	      .filter(item => typeof item === 'string')
+	      .map(item => this.container.querySelector(item))
+	      .toJS();
+
+	    this.dispatchEvent(new Event('render'));
+	  }
+
+	  _onrender() {
+	    this.observed
+	    .map(key => ({ key, ref: this.refs[key] }))
+	    .forEach(item => {
+	      erd.listenTo(item.ref, () => this._dispatchResizeEvent(item.key));
+	    });
+	  }
+
+	  _dispatchResizeEvent(partial) {
+	    this.dispatchEvent(new Event(partial + '.resize'));
+	  }
+
+	  get container() {
+	    return this.state.get('container');
+	  }
+
+	  set container(value) {
+	    this.state = this.state.set('container', value);
+	  }
+
+	  get renderProps() {
+	    return this.state.get('renderProps', new Map());
+	  }
+
+	  set renderProps(value) {
+	    this.state = this.state.set('renderProps', value);
+	  }
+
+	  get selectors() {
+	    return this.state.get('selectors', {});
+	  }
+
+	  set selectors(value) {
+	    this.state = this.state.set('selectors', value);
+	  }
+
+	  get template() {
+	    return this.state.get('template');
+	  }
+
+	  set template(value) {
+	    this.state = this.state.set('template', value);
+	  }
+
+	  get partial() {
+	    return this.state.get('partial', {});
+	  }
+
+	  set partial(value) {
+	    this.state = this.state.set('partial', value);
+	  }
+
+	  get dock() {
+	    return this.renderProps.get('dock');
+	  }
+
+	  set dock(value) {
+	    this.renderProps = this.renderProps.set('dock', value);
+	  }
+
+	  get menuButtons() {
+	    return this.renderProps.get('menuButtons');
+	  }
+
+	  set menuButtons(value) {
+	    this.renderProps = this.renderProps.set('menuButtons', value);
+	  }
+
+	  get editorButtons() {
+	    return this.renderProps.get('editorButtons');
+	  }
+
+	  set editorButtons(value) {
+	    this.renderProps = this.renderProps.set('editorButtons', value);
+	  }
+
+	  get classNames() {
+	    return this.renderProps.get('classNames');
+	  }
+
+	  set classNames(value) {
+	    this.renderProps = this.renderProps.set('classNames', value);
+	  }
+	}
+
+	module.exports = DomInterface;
+
+
+/***/ },
+/* 50 */,
+/* 51 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const getElementRect = __webpack_require__(23);
+
+	module.exports = ({dom, editor, element}) =>
+	() => {
+	  if (!dom.refs.editor) return;
+	  const editorRect = getElementRect(dom.refs.editor);
+	  element.style.visibility = getComputedStyle(dom.refs.editor).visibility;
+	  element.style.top = editorRect.top + 'px';
+	  element.style.left = editorRect.left + 'px';
+	  editor.setSize(editorRect.width, editorRect.height);
+	};
 
 
 /***/ }

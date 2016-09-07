@@ -37,7 +37,9 @@ class Player extends EventTarget {
     this.addEventListener('resize', this._onresize);
 
     var preventProps = null;
-    this.renderProps = Immutable.Map();
+    this.renderProps = Immutable.Map({
+      selectors: this.selectors.get('htmlClasses')
+    });
     const renderIfNeeded = () => {
       if (preventProps !== this.renderProps) {
         this.renderSync();
@@ -121,8 +123,8 @@ class Player extends EventTarget {
   }
 
   _onrender() {
-    const screen = this.container.querySelector(this.selectors.screen);
-    const editor = this.container.querySelector(this.selectors.editor);
+    const screen = this.container.querySelector(this.selectors.get('screen'));
+    const editor = this.container.querySelector(this.selectors.get('editor'));
     if (!screen || !editor) return;
 
     erd.listenTo(screen, () => this._dispatchResizeEvent('screen'));
@@ -134,8 +136,8 @@ class Player extends EventTarget {
   }
 
   _dispatchResizeEvent(partial) {
-    const screen = this.container.querySelector(this.selectors.screen);
-    const editor = this.container.querySelector(this.selectors.editor);
+    const screen = this.container.querySelector(this.selectors.get('screen'));
+    const editor = this.container.querySelector(this.selectors.get('editor'));
     if (!screen || !editor) return;
 
     const event = new Event(partial + '.resize');

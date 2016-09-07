@@ -2,8 +2,11 @@ const EventTarget = require('event-target-shim');
 
 class Player extends EventTarget {
 
-  constructor() {
+  constructor({src, contentWindow} = {}) {
     super();
+
+    this.src = src;
+    this.contentWindow = contentWindow;
 
     var width = 300, height = 150;
     this.getContentSize = () => ({ width, height });
@@ -17,6 +20,26 @@ class Player extends EventTarget {
     this.setPort = (value) => {
       port = this._setPort(value, port);
     };
+  }
+
+  start({dependencies = [], code = ''}) {
+    this.contentWindow.location.assign(this.src);
+    this.lastLoaded = { dependencies, code };
+    return this
+      .connect(this.contentWindow)
+      .then(() => {
+        this.postMessage({
+          method: 'require',
+          dependencies,
+          code,
+        });
+        return this;
+      });
+  }
+
+  restart() {
+    if (!this.lastLoaded) return;
+    return this.start(this.lastLoaded);
   }
 
   standBy(contentWindow) {
@@ -44,14 +67,6 @@ class Player extends EventTarget {
 
   postMessage() {
     throw new Error('Missing a port. It has not connected yet.');
-  }
-
-  start(dependencies = [], code = '') {
-    this.postMessage({
-      method: 'require',
-      dependencies,
-      code,
-    });
   }
 
   _setPort(next, current) {

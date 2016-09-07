@@ -2,8 +2,11 @@ const EventTarget = require('event-target-shim');
 
 class Player extends EventTarget {
 
-  constructor() {
+  constructor({src, contentWindow} = {}) {
     super();
+
+    this.src = src;
+    this.contentWindow = contentWindow;
 
     var width = 300, height = 150;
     this.getContentSize = () => ({ width, height });

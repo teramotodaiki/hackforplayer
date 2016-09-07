@@ -71,11 +71,12 @@
 	  const players =
 	    Array.prototype.slice.call(containers)
 	    .map(container => {
-	      // An instance of h4p.Player
-	      const player = new Player();
-
 	      // An iframe element as a sigleton
 	      const iframe = makeIFrame();
+	      const contentWindow = iframe.contentWindow;
+
+	      // An instance of h4p.Player
+	      const player = new Player({src, contentWindow});
 
 	      // An editor instance as a singleton
 	      const editor = makeEditor();
@@ -117,20 +118,19 @@
 	        const visibility = current === 'visible' ? 'hidden' : 'visible';
 	        dom.dock = Object.assign({}, dom.dock, {visibility});
 	      };
-	      // Initializer
-	      const init = () => {
-	        iframe.contentWindow.location.assign(src);
-	        return player
-	          .connect(iframe.contentWindow)
-	          .then(() => {
-	            player.start([], code);
-	          });
-	      };
+
 	      dom.menuButtons = [
 	        Button({ label: 'HACK', onClick: toggleDock }),
-	        Button({ label: 'RELOAD', onClick: init })
+	        Button({ label: 'RELOAD', onClick: () => player.restart() })
 	      ];
 
+	      const run = () => {
+	        const code = editor.getValue();
+	        player.start({
+	          dependencies: [],
+	          code
+	        });
+	      };
 	      const alignDock = (align) =>
 	        () => dom.dock = Object.assign({}, dom.dock, {
 	          align,
@@ -138,6 +138,7 @@
 	          height: align === 'left' || align === 'right' ? '100vh' : '50vh'
 	        });
 	      dom.editorButtons = [
+	        Button({ label: 'RUN', onClick: run }),
 	        Button({ label: 'T', onClick: alignDock('top') }),
 	        Button({ label: 'R', onClick: alignDock('right') }),
 	        Button({ label: 'B', onClick: alignDock('bottom') }),
@@ -154,7 +155,10 @@
 	      player.addEventListener('resize.message', stayBottom({dom, player, iframe}));
 	      dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
-	      init();
+	      player.start({
+	        dependencies: [],
+	        code
+	      });
 
 	      return player;
 	    });
@@ -182,8 +186,11 @@
 
 	class Player extends EventTarget {
 
-	  constructor() {
+	  constructor({src, contentWindow} = {}) {
 	    super();
+
+	    this.src = src;
+	    this.contentWindow = contentWindow;
 
 	    var width = 300, height = 150;
 	    this.getContentSize = () => ({ width, height });
@@ -197,6 +204,26 @@
 	    this.setPort = (value) => {
 	      port = this._setPort(value, port);
 	    };
+	  }
+
+	  start({dependencies = [], code = ''}) {
+	    this.contentWindow.location.assign(this.src);
+	    this.lastLoaded = { dependencies, code };
+	    return this
+	      .connect(this.contentWindow)
+	      .then(() => {
+	        this.postMessage({
+	          method: 'require',
+	          dependencies,
+	          code,
+	        });
+	        return this;
+	      });
+	  }
+
+	  restart() {
+	    if (!this.lastLoaded) return;
+	    return this.start(this.lastLoaded);
 	  }
 
 	  standBy(contentWindow) {
@@ -224,14 +251,6 @@
 
 	  postMessage() {
 	    throw new Error('Missing a port. It has not connected yet.');
-	  }
-
-	  start(dependencies = [], code = '') {
-	    this.postMessage({
-	      method: 'require',
-	      dependencies,
-	      code,
-	    });
 	  }
 
 	  _setPort(next, current) {

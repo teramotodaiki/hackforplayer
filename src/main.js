@@ -78,6 +78,13 @@ const init = (namespace) => {
         Button({ label: 'RELOAD', onClick: () => player.restart() })
       ];
 
+      const run = () => {
+        const code = editor.getValue();
+        player.start({
+          dependencies: [],
+          code
+        });
+      };
       const alignDock = (align) =>
         () => dom.dock = Object.assign({}, dom.dock, {
           align,
@@ -85,6 +92,7 @@ const init = (namespace) => {
           height: align === 'left' || align === 'right' ? '100vh' : '50vh'
         });
       dom.editorButtons = [
+        Button({ label: 'RUN', onClick: run }),
         Button({ label: 'T', onClick: alignDock('top') }),
         Button({ label: 'R', onClick: alignDock('right') }),
         Button({ label: 'B', onClick: alignDock('bottom') }),

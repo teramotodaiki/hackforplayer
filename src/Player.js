@@ -1,30 +1,15 @@
-const Immutable = require('immutable');
 const EventTarget = require('event-target-shim');
-const erd = require('element-resize-detector')({
-  strategy: "scroll" //<- For ultra performance.
-});
-const raf = require('raf');
-
-const getElementRect = require('./getElementRect');
-const content = require('../templates/').content;
-const button = require('../templates/').button;
-const dock = require('../templates/').dock;
-const editor = require('../templates/').editor;
 
 class Player extends EventTarget {
 
-  constructor(props) {
+  constructor() {
     super();
-
-    this.container = props.container;
-    this.selectors = require('./selectors')(props.namespace);
 
     var width = 300, height = 150;
     this.getContentSize = () => ({ width, height });
     this.addEventListener('resize.message', () => {
       width = event.data.width;
       height = event.data.height;
-      this._dispatchResizeEvent('screen');
     });
 
     // cannot access port directly
@@ -32,59 +17,6 @@ class Player extends EventTarget {
     this.setPort = (value) => {
       port = this._setPort(value, port);
     };
-
-    this.addEventListener('render', this._onrender);
-    this.addEventListener('resize', this._onresize);
-
-    var preventProps = null;
-    this.renderProps = Immutable.Map({
-      selectors: this.selectors.get('htmlClasses')
-    });
-    const renderIfNeeded = () => {
-      if (preventProps !== this.renderProps) {
-        this.renderSync();
-      }
-      preventProps = this.renderProps;
-      raf(renderIfNeeded);
-    };
-    raf(renderIfNeeded);
-  }
-
-  get dock() {
-    return this.renderProps.get('dock');
-  }
-
-  set dock(value) {
-    this.renderProps = this.renderProps.set('dock', value);
-  }
-
-  get menuButtons() {
-    return this.renderProps.get('menuButtons');
-  }
-
-  set menuButtons(value) {
-    this.renderProps = this.renderProps.set('menuButtons', value);
-  }
-
-  get editorButtons() {
-    return this.renderProps.get('editorButtons');
-  }
-
-  set editorButtons(value) {
-    this.renderProps = this.renderProps.set('editorButtons', value);
-  }
-
-  renderSync() {
-    this.dispatchEvent(new Event('beforerender'));
-    this.container.innerHTML = content.render(this.renderProps.toJS(), {button, editor, dock});
-    this.dispatchEvent(new Event('render'));
-  }
-
-  render(props) {
-    return new Promise((resolve, reject) => {
-      this.renderSync(props);
-      resolve();
-    });
   }
 
   standBy(contentWindow) {
@@ -120,32 +52,6 @@ class Player extends EventTarget {
       dependencies,
       code,
     });
-  }
-
-  _onrender() {
-    const screen = this.container.querySelector(this.selectors.get('screen'));
-    const editor = this.container.querySelector(this.selectors.get('editor'));
-    if (!screen || !editor) return;
-
-    erd.listenTo(screen, () => this._dispatchResizeEvent('screen'));
-    erd.listenTo(editor, () => this._dispatchResizeEvent('editor'));
-    this.addEventListener('beforerender', () => {
-      erd.uninstall(screen);
-      erd.uninstall(editor);
-    });
-  }
-
-  _dispatchResizeEvent(partial) {
-    const screen = this.container.querySelector(this.selectors.get('screen'));
-    const editor = this.container.querySelector(this.selectors.get('editor'));
-    if (!screen || !editor) return;
-
-    const event = new Event(partial + '.resize');
-    event.screenRect = getElementRect(screen);
-    event.editorRect = getElementRect(editor);
-    event.editorVisibility = getComputedStyle(editor).visibility;
-    event.contentSize = this.getContentSize();
-    this.dispatchEvent(event);
   }
 
   _setPort(next, current) {

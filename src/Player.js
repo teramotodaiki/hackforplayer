@@ -1,16 +1,19 @@
 const EventTarget = require('event-target-shim');
+const Postmate = require('postmate/build/postmate.min');
+Postmate.debug = true;
+
+const initPosition = require('./initPosition');
 
 class Player extends EventTarget {
 
-  constructor({src, contentWindow} = {}) {
+  constructor({src} = {}) {
     super();
 
     this.src = src;
-    this.contentWindow = contentWindow;
 
     var width = 300, height = 150;
     this.getContentSize = () => ({ width, height });
-    this.addEventListener('resize.message', () => {
+    this.addEventListener('resize', () => {
       width = event.data.width;
       height = event.data.height;
     });
@@ -22,24 +25,33 @@ class Player extends EventTarget {
     };
   }
 
-  start({dependencies = [], code = ''}) {
-    this.contentWindow.location.assign(this.src);
-    this.lastLoaded = { dependencies, code };
-    return this
-      .connect(this.contentWindow)
-      .then(() => {
-        this.postMessage({
-          method: 'require',
-          dependencies,
-          code,
-        });
-        return this;
-      });
+  start(file) {
+    return new Postmate({
+      container: document.body,
+      url: this.src,
+      model: {file}
+    })
+    .then(child => {
+      this.restart = () => {
+        child.destroy();
+        this.start(file);
+      };
+      initPosition(child.frame);
+      child.frame.style.position = 'absolute';
+      child.get('size')
+        .then(data => this.dispatchResizeEvent({data, child}));
+      child.on('resize', (data) => this.dispatchResizeEvent({data, child}));
+
+      return child;
+    });
   }
 
-  restart() {
-    if (!this.lastLoaded) return;
-    return this.start(this.lastLoaded);
+  dispatchResizeEvent({data, child}) {
+    const event = new Event('resize');
+    event.frame = child.frame;
+    event.width = data.width;
+    event.height = data.height;
+    this.dispatchEvent(event);
   }
 
   standBy(contentWindow) {

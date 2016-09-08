@@ -3,8 +3,7 @@ const makeIFrame = require('./makeIFrame');
 const makeEditor = require('./makeEditor');
 const stayBottom = require('./stayBottom');
 const coverAll = require('./coverAll');
-const Button = require('./Button');
-const Sizer = require('./Sizer');
+const Element = require('./createElementWithEvent');
 const partial = require('../templates/');
 
 const erd = require('element-resize-detector')({
@@ -64,7 +63,7 @@ const init = (namespace) => {
         align: 'right',
         width: '50vw',
         height: '100vh',
-        sizer: Sizer({ onDragEnd: dragSizer })
+        sizer: Element({ onDragEnd: dragSizer })
       };
 
       const toggleDock = () => {
@@ -74,8 +73,8 @@ const init = (namespace) => {
       };
 
       dom.menuButtons = [
-        Button({ label: 'HACK', onClick: toggleDock }),
-        Button({ label: 'RELOAD', onClick: () => player.restart() })
+        Element({ label: 'HACK', onClick: toggleDock }),
+        Element({ label: 'RELOAD', onClick: () => player.restart() })
       ];
 
       const run = () => {
@@ -92,11 +91,11 @@ const init = (namespace) => {
           height: align === 'left' || align === 'right' ? '100vh' : '50vh'
         });
       dom.editorButtons = [
-        Button({ label: 'RUN', onClick: run }),
-        Button({ label: 'T', onClick: alignDock('top') }),
-        Button({ label: 'R', onClick: alignDock('right') }),
-        Button({ label: 'B', onClick: alignDock('bottom') }),
-        Button({ label: 'L', onClick: alignDock('left') })
+        Element({ label: 'RUN', onClick: run }),
+        Element({ label: 'T', onClick: alignDock('top') }),
+        Element({ label: 'R', onClick: alignDock('right') }),
+        Element({ label: 'B', onClick: alignDock('bottom') }),
+        Element({ label: 'L', onClick: alignDock('left') })
       ];
 
       // Inline script

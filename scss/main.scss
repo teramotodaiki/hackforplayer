@@ -1,3 +1,6 @@
+iframe {
+  visibility: hidden;
+}
 
 // dock
 $direction: (top: column-reverse, right: row, bottom: column, left: row-reverse);

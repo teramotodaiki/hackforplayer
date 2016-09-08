@@ -1,5 +1,4 @@
 const Player = require('./Player');
-const makeIFrame = require('./makeIFrame');
 const makeEditor = require('./makeEditor');
 const stayBottom = require('./stayBottom');
 const coverAll = require('./coverAll');
@@ -24,12 +23,8 @@ const init = (namespace) => {
   const players =
     Array.prototype.slice.call(containers)
     .map(container => {
-      // An iframe element as a sigleton
-      const iframe = makeIFrame();
-      const contentWindow = iframe.contentWindow;
-
       // An instance of h4p.Player
-      const player = new Player({src, contentWindow});
+      const player = new Player({src});
 
       // An editor instance as a singleton
       const editor = makeEditor();
@@ -104,8 +99,9 @@ const init = (namespace) => {
 
       editor.setValue(code.replace(/\n    /g, '\n').substr(1));
 
-      dom.addEventListener('screen.resize', stayBottom({dom, player, iframe}));
-      player.addEventListener('resize.message', stayBottom({dom, player, iframe}));
+      const resizeTask = stayBottom(dom);
+      dom.addEventListener('screen.resize', resizeTask);
+      player.addEventListener('resize', resizeTask);
       dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
       player.start({
@@ -127,5 +123,4 @@ window.h4p = (...args) =>
   });
 
 h4p.Player = Player;
-h4p.makeIFrame = makeIFrame;
 h4p.trigger = require('./keyEvent')('h4p').trigger;

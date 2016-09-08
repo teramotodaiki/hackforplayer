@@ -23,19 +23,20 @@ class Player extends EventTarget {
     this.setPort = (value) => {
       port = this._setPort(value, port);
     };
+
+    this.addEventListener('beforeunload', (event) => event.child.destroy());
   }
 
   start(files) {
+    this._start();
     return new Postmate({
       container: document.body,
       url: this.src,
       model: {files}
     })
     .then(child => {
-      this.restart = () => {
-        child.destroy();
-        this.start(files);
-      };
+      this._start = () => this.dispatchBeforeUnloadEvent({child});
+      this.restart = () => this.start(files);
       initPosition(child.frame);
       child.frame.style.position = 'absolute';
       child.get('size')
@@ -45,12 +46,20 @@ class Player extends EventTarget {
       return child;
     });
   }
+  _start() {}
+  restart() {}
 
   dispatchResizeEvent({data, child}) {
     const event = new Event('resize');
     event.frame = child.frame;
     event.width = data.width;
     event.height = data.height;
+    this.dispatchEvent(event);
+  }
+
+  dispatchBeforeUnloadEvent({child}) {
+    const event = new Event('beforeunload');
+    event.child = child;
     this.dispatchEvent(event);
   }
 

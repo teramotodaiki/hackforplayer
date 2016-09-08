@@ -5,7 +5,6 @@ const erd = require('element-resize-detector')({
 });
 
 const RendererInterface = require('./RendererInterface');
-const getElementRect = require('./getElementRect');
 
 class DomInterface extends RendererInterface {
   constructor(initialState = {}) {

@@ -828,6 +828,7 @@
 
 	module.exports = () => {
 	  const iframe = document.createElement('iframe');
+	  iframe.style.position = 'absolute';
 	  initPosition(iframe, 'top left');
 	  document.body.appendChild(iframe);
 	  return iframe;
@@ -839,7 +840,6 @@
 /***/ function(module, exports) {
 
 	module.exports = (node, fixes = 'top left') => {
-	  node.style.position = 'absolute';
 	  node.style.margin = '0px';
 	  node.style.padding = '0px';
 	  node.style.border = '0 none';
@@ -862,6 +862,7 @@
 	  const cm = CodeMirror((element) => {
 	    initPosition(element, 'top left');
 	    element.style['z-index'] = '100';
+	    element.style.position = 'fixed';
 	    document.body.appendChild(element);
 	  }, {
 	    lineNumbers: true,
@@ -10957,59 +10958,47 @@
 
 /***/ },
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const getElementRect = __webpack_require__(16);
+/***/ function(module, exports) {
 
 	module.exports = ({dom, player, iframe}) =>
 	() => {
 	  if (!dom.refs.screen) return;
-	  const screenRect = getElementRect(dom.refs.screen);
-	  const iframeRect = getElementRect(iframe);
+	  const screenRect = dom.refs.screen.getBoundingClientRect();
+	  const iframeStyle = getComputedStyle(iframe);
+	  const offset = {
+	    x: iframeStyle.position === 'absolute' ? pageXOffset : 0,
+	    y: iframeStyle.position === 'absolute' ? pageYOffset : 0,
+	  };
 	  const contentSize = player.getContentSize();
 
 	  const ratio = (size) => Math.max(size.height, 1) / Math.max(size.width, 1);
 	  if (ratio(screenRect) > ratio(contentSize)) {
 	    iframe.width = screenRect.width;
 	    iframe.height = screenRect.width * ratio(contentSize);
-	    iframe.style.left = screenRect.left + 'px';
-	    iframe.style.top = screenRect.top + (screenRect.height - iframe.height) + 'px';
+	    iframe.style.width = screenRect.width + 'px';
+	    iframe.style.height = screenRect.width * ratio(contentSize) + 'px';
+	    iframe.style.left = screenRect.left + offset.x + 'px';
+	    iframe.style.top = screenRect.top + (screenRect.height - iframe.height) + offset.y + 'px';
 	  } else {
 	    iframe.width = screenRect.height / ratio(contentSize);
 	    iframe.height = screenRect.height;
-	    iframe.style.left = screenRect.left + (screenRect.width - iframe.width) / 2 + 'px';
-	    iframe.style.top = screenRect.top + 'px';
+	    iframe.style.width = screenRect.height / ratio(contentSize) + 'px';
+	    iframe.style.height = screenRect.height + 'px';
+	    iframe.style.left = screenRect.left + (screenRect.width - iframe.width) / 2 + offset.x + 'px';
+	    iframe.style.top = screenRect.top + offset.y + 'px';
 	  }
 	};
 
 
 /***/ },
-/* 16 */
-/***/ function(module, exports) {
-
-	module.exports = (element) => {
-	  const rect = element.getBoundingClientRect();
-	  return {
-	    width: rect.width,
-	    height: rect.height,
-	    top: rect.top + pageYOffset,
-	    right: rect.right + pageXOffset,
-	    bottom: rect.bottom + pageYOffset,
-	    left: rect.left + pageXOffset
-	  };
-	};
-
-
-/***/ },
+/* 16 */,
 /* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const getElementRect = __webpack_require__(16);
+/***/ function(module, exports) {
 
 	module.exports = ({dom, editor, element}) =>
 	() => {
 	  if (!dom.refs.editor) return;
-	  const editorRect = getElementRect(dom.refs.editor);
+	  const editorRect = dom.refs.editor.getBoundingClientRect();
 	  element.style.visibility = getComputedStyle(dom.refs.editor).visibility;
 	  element.style.top = editorRect.top + 'px';
 	  element.style.left = editorRect.left + 'px';
@@ -11877,7 +11866,7 @@
 /* 25 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.screen",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("classNames.menu_buttons",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);if(t.s(t.f("menuButtons",c,p,1),c,p,0,354,378,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b(t.rp("<dock1",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }},"<dock1":{name:"dock", partials: {}, subs: {  }}}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.screen",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("classNames.menuButtons",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);if(t.s(t.f("menuButtons",c,p,1),c,p,0,353,377,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b(t.rp("<dock1",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }},"<dock1":{name:"dock", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
 /* 26 */
@@ -11895,7 +11884,7 @@
 /* 28 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.editor_wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"display: flex; flex-direction: column; justify-content: stretch; flex: 1 1 auto; background-color: green; \"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editor_buttons",c,p,0)));t.b("\">");t.b("\n" + i);if(t.s(t.f("editorButtons",c,p,1),c,p,0,232,256,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editor",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }}}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.editorWrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"display: flex; flex-direction: column; justify-content: stretch; flex: 1 1 auto; background-color: green; \"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editorButtons",c,p,0)));t.b("\" style=\"background-color: red\">");t.b("\n" + i);if(t.s(t.f("editorButtons",c,p,1),c,p,0,260,284,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editor",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
 /* 29 */
@@ -13579,7 +13568,6 @@
 	});
 
 	const RendererInterface = __webpack_require__(44);
-	const getElementRect = __webpack_require__(16);
 
 	class DomInterface extends RendererInterface {
 	  constructor(initialState = {}) {

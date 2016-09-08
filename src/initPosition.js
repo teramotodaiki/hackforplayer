@@ -1,5 +1,4 @@
 module.exports = (node, fixes = 'top left') => {
-  node.style.position = 'absolute';
   node.style.margin = '0px';
   node.style.padding = '0px';
   node.style.border = '0 none';

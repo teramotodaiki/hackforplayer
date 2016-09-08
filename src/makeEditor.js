@@ -9,6 +9,7 @@ module.exports = () => {
   const cm = CodeMirror((element) => {
     initPosition(element, 'top left');
     element.style['z-index'] = '100';
+    element.style.position = 'fixed';
     document.body.appendChild(element);
   }, {
     lineNumbers: true,

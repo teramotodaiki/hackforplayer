@@ -49,8 +49,7 @@
 	const makeEditor = __webpack_require__(8);
 	const stayBottom = __webpack_require__(15);
 	const coverAll = __webpack_require__(17);
-	const Button = __webpack_require__(18);
-	const Sizer = __webpack_require__(20);
+	const Element = __webpack_require__(53);
 	const partial = __webpack_require__(21);
 
 	const erd = __webpack_require__(29)({
@@ -110,7 +109,7 @@
 	        align: 'right',
 	        width: '50vw',
 	        height: '100vh',
-	        sizer: Sizer({ onDragEnd: dragSizer })
+	        sizer: Element({ onDragEnd: dragSizer })
 	      };
 
 	      const toggleDock = () => {
@@ -120,8 +119,8 @@
 	      };
 
 	      dom.menuButtons = [
-	        Button({ label: 'HACK', onClick: toggleDock }),
-	        Button({ label: 'RELOAD', onClick: () => player.restart() })
+	        Element({ label: 'HACK', onClick: toggleDock }),
+	        Element({ label: 'RELOAD', onClick: () => player.restart() })
 	      ];
 
 	      const run = () => {
@@ -138,11 +137,11 @@
 	          height: align === 'left' || align === 'right' ? '100vh' : '50vh'
 	        });
 	      dom.editorButtons = [
-	        Button({ label: 'RUN', onClick: run }),
-	        Button({ label: 'T', onClick: alignDock('top') }),
-	        Button({ label: 'R', onClick: alignDock('right') }),
-	        Button({ label: 'B', onClick: alignDock('bottom') }),
-	        Button({ label: 'L', onClick: alignDock('left') })
+	        Element({ label: 'RUN', onClick: run }),
+	        Element({ label: 'T', onClick: alignDock('top') }),
+	        Element({ label: 'R', onClick: alignDock('right') }),
+	        Element({ label: 'B', onClick: alignDock('bottom') }),
+	        Element({ label: 'L', onClick: alignDock('left') })
 	      ];
 
 	      // Inline script
@@ -11007,17 +11006,7 @@
 
 
 /***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const on = __webpack_require__(19)('h4p').on;
-
-	module.exports = (props) => Object.assign({}, props, {
-	  onClick: props.onClick ? on(props.onClick) : null
-	});
-
-
-/***/ },
+/* 18 */,
 /* 19 */
 /***/ function(module, exports) {
 
@@ -11035,17 +11024,7 @@
 
 
 /***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-	const on = __webpack_require__(19)('h4p').on;
-
-	module.exports = (props) => Object.assign({}, props, {
-	  onDragEnd: props.onDragEnd ? on(props.onDragEnd) : null
-	});
-
-
-/***/ },
+/* 20 */,
 /* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -19072,6 +19051,21 @@
 	  return selectors;
 
 	};
+
+
+/***/ },
+/* 51 */,
+/* 52 */,
+/* 53 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const on = __webpack_require__(19)('h4p').on;
+	const Map = __webpack_require__(43).Map;
+
+	module.exports = (props) =>
+	  new Map(props)
+	  .map(value => typeof value === 'function' ? on(value) : value)
+	  .toJS();
 
 
 /***/ }

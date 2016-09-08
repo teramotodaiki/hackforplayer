@@ -100,8 +100,9 @@ const init = (namespace) => {
 
       editor.setValue(code.replace(/\n    /g, '\n').substr(1));
 
-      dom.addEventListener('screen.resize', stayBottom({dom, player, iframe}));
-      player.addEventListener('resize.message', stayBottom({dom, player, iframe}));
+      const resizeTask = stayBottom(dom);
+      dom.addEventListener('screen.resize', resizeTask);
+      player.addEventListener('resize', resizeTask);
       dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
       player.start({

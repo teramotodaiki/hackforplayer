@@ -24,12 +24,8 @@ const init = (namespace) => {
   const players =
     Array.prototype.slice.call(containers)
     .map(container => {
-      // An iframe element as a sigleton
-      const iframe = makeIFrame();
-      const contentWindow = iframe.contentWindow;
-
       // An instance of h4p.Player
-      const player = new Player({src, contentWindow});
+      const player = new Player({src});
 
       // An editor instance as a singleton
       const editor = makeEditor();

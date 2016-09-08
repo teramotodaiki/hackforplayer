@@ -74,10 +74,7 @@ const init = (namespace) => {
 
       const run = () => {
         const code = editor.getValue();
-        player.start({
-          dependencies: [],
-          code
-        });
+        player.start([{ name: 'main', code }]);
       };
       const alignDock = (align) =>
         () => dom.dock = Object.assign({}, dom.dock, {
@@ -104,10 +101,10 @@ const init = (namespace) => {
       player.addEventListener('resize', resizeTask);
       dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
-      player.start({
-        dependencies: [],
+      player.start([{
+        name: 'main',
         code
-      });
+      }]);
 
       return player;
     });

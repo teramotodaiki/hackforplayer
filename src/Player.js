@@ -25,16 +25,16 @@ class Player extends EventTarget {
     };
   }
 
-  start(file) {
+  start(files) {
     return new Postmate({
       container: document.body,
       url: this.src,
-      model: {file}
+      model: {files}
     })
     .then(child => {
       this.restart = () => {
         child.destroy();
-        this.start(file);
+        this.start(files);
       };
       initPosition(child.frame);
       child.frame.style.position = 'absolute';

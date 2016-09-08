@@ -1,5 +1,4 @@
 const Player = require('./Player');
-const makeIFrame = require('./makeIFrame');
 const makeEditor = require('./makeEditor');
 const stayBottom = require('./stayBottom');
 const coverAll = require('./coverAll');
@@ -124,5 +123,4 @@ window.h4p = (...args) =>
   });
 
 h4p.Player = Player;
-h4p.makeIFrame = makeIFrame;
 h4p.trigger = require('./keyEvent')('h4p').trigger;

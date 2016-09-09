@@ -1,10 +1,16 @@
 {{^input}}
+{{^a}}
 <button onClick="{{onClick}}">
   {{label}}
 </button>
+{{/a}}
 {{/input}}
 
 {{#input}}
 <input id="{{uid}}" type="{{type}}" accept="{{accept}}" onChange="{{onChange}}" style="display: none;" />
 <label for="{{uid}}">{{label}}</label>
 {{/input}}
+
+{{#a}}
+<a href="#" download="{{download}}" onClick="{{onClick}}">{{label}}</a>
+{{/a}}

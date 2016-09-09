@@ -14,7 +14,7 @@ const DomInterface = require('./DomInterface');
 
 require('../scss/main.scss');
 
-const src = 'http://localhost:3000/game.html';
+const src = 'https://embed.hackforplay.xyz/open-source/game/alpha.html'; // CDN
 
 const init = (namespace) => {
   const selectors = require('./selectors')(namespace);

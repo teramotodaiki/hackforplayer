@@ -118,6 +118,9 @@ const init = (namespace) => {
         Element({ label: 'R', onClick: alignDock('right') }),
         Element({ label: 'HIDE', onClick: toggleDock })
       ];
+      editor.setOption('extraKeys', {
+  			'Ctrl-Enter': run
+      });
 
       // Inline script
       const query = container.getAttribute('data-target');

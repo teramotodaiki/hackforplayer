@@ -60,7 +60,7 @@
 
 	__webpack_require__(46);
 
-	const src = 'http://localhost:3000/index.html';
+	const src = 'http://localhost:3000/game.html';
 
 	const init = (namespace) => {
 	  const selectors = __webpack_require__(48)(namespace);

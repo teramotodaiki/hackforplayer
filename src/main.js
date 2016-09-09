@@ -14,7 +14,7 @@ const DomInterface = require('./DomInterface');
 
 require('../scss/main.scss');
 
-const src = 'http://localhost:3000/index.html';
+const src = 'http://localhost:3000/game.html';
 
 const init = (namespace) => {
   const selectors = require('./selectors')(namespace);

@@ -141,8 +141,23 @@
 	          width: align === 'top' || align === 'bottom' ? '100vw' : '50vw',
 	          height: align === 'left' || align === 'right' ? '100vh' : '50vh'
 	        });
+	      const fileSave = (event) => {
+	        const code = editor.getValue();
+	        event.target.href = URL.createObjectURL(new Blob([code]));
+	      };
+	      const fileLoad = (event) => {
+	        const file = event.target.files[0];
+	        const reader = new FileReader();
+	        reader.onload = ({target:{result}}) => {
+	          editor.setValue(result);
+	          event.target.value = ''; // Can upload same file
+	        };
+	        reader.readAsText(file);
+	      };
 	      dom.editorButtons = [
 	        Element({ label: 'RUN', onClick: run }),
+	        Element({ label: 'SAVE', a: {download: 'main.js'}, onClick: fileSave }),
+	        Element({ label: 'LOAD', input: {type: 'file', accept: 'text/javascript'}, onChange: fileLoad }),
 	        Element({ label: 'L', onClick: alignDock('left') }),
 	        Element({ label: 'T', onClick: alignDock('top') }),
 	        Element({ label: 'B', onClick: alignDock('bottom') }),
@@ -16884,7 +16899,7 @@
 /* 25 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");if(!t.s(t.f("input",c,p,1),c,p,1,0,0,"")){t.b("<button onClick=\"");t.b(t.v(t.f("onClick",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  ");t.b(t.v(t.f("label",c,p,0)));t.b("\n" + i);t.b("</button>");t.b("\n" + i);};t.b("\n" + i);if(t.s(t.f("input",c,p,1),c,p,0,86,232,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<input id=\"");t.b(t.v(t.f("uid",c,p,0)));t.b("\" type=\"");t.b(t.v(t.f("type",c,p,0)));t.b("\" accept=\"");t.b(t.v(t.f("accept",c,p,0)));t.b("\" onChange=\"");t.b(t.v(t.f("onChange",c,p,0)));t.b("\" style=\"display: none;\" />");t.b("\n" + i);t.b("<label for=\"");t.b(t.v(t.f("uid",c,p,0)));t.b("\">");t.b(t.v(t.f("label",c,p,0)));t.b("</label>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");if(!t.s(t.f("input",c,p,1),c,p,1,0,0,"")){if(!t.s(t.f("a",c,p,1),c,p,1,0,0,"")){t.b("<button onClick=\"");t.b(t.v(t.f("onClick",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  ");t.b(t.v(t.f("label",c,p,0)));t.b("\n" + i);t.b("</button>");t.b("\n" + i);};};t.b("\n" + i);if(t.s(t.f("input",c,p,1),c,p,0,100,246,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<input id=\"");t.b(t.v(t.f("uid",c,p,0)));t.b("\" type=\"");t.b(t.v(t.f("type",c,p,0)));t.b("\" accept=\"");t.b(t.v(t.f("accept",c,p,0)));t.b("\" onChange=\"");t.b(t.v(t.f("onChange",c,p,0)));t.b("\" style=\"display: none;\" />");t.b("\n" + i);t.b("<label for=\"");t.b(t.v(t.f("uid",c,p,0)));t.b("\">");t.b(t.v(t.f("label",c,p,0)));t.b("</label>");t.b("\n" + i);});c.pop();}t.b("\n" + i);if(t.s(t.f("a",c,p,1),c,p,0,264,337,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"#\" download=\"");t.b(t.v(t.f("download",c,p,0)));t.b("\" onClick=\"");t.b(t.v(t.f("onClick",c,p,0)));t.b("\">");t.b(t.v(t.f("label",c,p,0)));t.b("</a>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}
 
 /***/ },
 /* 26 */

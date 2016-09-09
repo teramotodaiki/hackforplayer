@@ -95,8 +95,13 @@ const init = (namespace) => {
           width: align === 'top' || align === 'bottom' ? '100vw' : '50vw',
           height: align === 'left' || align === 'right' ? '100vh' : '50vh'
         });
+      const fileSave = (event) => {
+        const code = editor.getValue();
+        event.target.href = URL.createObjectURL(new Blob([code]));
+      };
       dom.editorButtons = [
         Element({ label: 'RUN', onClick: run }),
+        Element({ label: 'SAVE', a: {download: 'main.js'}, onClick: fileSave }),
         Element({ label: 'L', onClick: alignDock('left') }),
         Element({ label: 'T', onClick: alignDock('top') }),
         Element({ label: 'B', onClick: alignDock('bottom') }),

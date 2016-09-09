@@ -95,8 +95,23 @@ const init = (namespace) => {
           width: align === 'top' || align === 'bottom' ? '100vw' : '50vw',
           height: align === 'left' || align === 'right' ? '100vh' : '50vh'
         });
+      const fileSave = (event) => {
+        const code = editor.getValue();
+        event.target.href = URL.createObjectURL(new Blob([code]));
+      };
+      const fileLoad = (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ({target:{result}}) => {
+          editor.setValue(result);
+          event.target.value = ''; // Can upload same file
+        };
+        reader.readAsText(file);
+      };
       dom.editorButtons = [
         Element({ label: 'RUN', onClick: run }),
+        Element({ label: 'SAVE', a: {download: 'main.js'}, onClick: fileSave }),
+        Element({ label: 'LOAD', input: {type: 'file', accept: 'text/javascript'}, onChange: fileLoad }),
         Element({ label: 'L', onClick: alignDock('left') }),
         Element({ label: 'T', onClick: alignDock('top') }),
         Element({ label: 'B', onClick: alignDock('bottom') }),

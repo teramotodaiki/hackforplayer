@@ -89,6 +89,7 @@ const init = (namespace) => {
         Element({ label: 'T', onClick: alignDock('top') }),
         Element({ label: 'B', onClick: alignDock('bottom') }),
         Element({ label: 'R', onClick: alignDock('right') }),
+        Element({ label: 'HIDE', onClick: toggleDock })
       ];
 
       // Inline script

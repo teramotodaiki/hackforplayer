@@ -85,10 +85,10 @@ const init = (namespace) => {
         });
       dom.editorButtons = [
         Element({ label: 'RUN', onClick: run }),
+        Element({ label: 'L', onClick: alignDock('left') }),
         Element({ label: 'T', onClick: alignDock('top') }),
-        Element({ label: 'R', onClick: alignDock('right') }),
         Element({ label: 'B', onClick: alignDock('bottom') }),
-        Element({ label: 'L', onClick: alignDock('left') })
+        Element({ label: 'R', onClick: alignDock('right') }),
       ];
 
       // Inline script

@@ -60,7 +60,7 @@
 
 	__webpack_require__(46);
 
-	const src = 'https://embed.hackforplay.xyz/open-source/game/alpha.html'; // CDN
+	const src = 'https://embed.hackforplay.xyz/open-source/game/alpha1.html'; // CDN
 	// const src = 'http://localhost:3000/game.html'; // [https://github.com/teramotodaiki/hackforplay-embed]
 
 	const init = (namespace) => {

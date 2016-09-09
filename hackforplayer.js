@@ -114,9 +114,21 @@
 	        dom.dock = Object.assign({}, dom.dock, {visibility});
 	      };
 
+	      const fileOpen = (event) => {
+	        const file = event.target.files[0];
+	        const reader = new FileReader();
+	        reader.onload = ({target:{result}}) => {
+	          player.start([{ name: file.name, code: result }]);
+	          editor.setValue(result);
+	          event.target.value = ''; // Can upload same file
+	        };
+	        reader.readAsText(file);
+	      };
+
 	      dom.menuButtons = [
 	        Element({ label: 'HACK', onClick: toggleDock }),
-	        Element({ label: 'RELOAD', onClick: () => player.restart() })
+	        Element({ label: 'RELOAD', onClick: () => player.restart() }),
+	        Element({ label: 'OPEN', input: {type: 'file', accept: 'text/javascript'}, onChange: fileOpen })
 	      ];
 
 	      const run = () => {
@@ -11040,6 +11052,7 @@
 	module.exports = (props) =>
 	  new Map(props)
 	  .map(value => typeof value === 'function' ? on(value) : value)
+	  .set('uid', Math.random())
 	  .toJS();
 
 
@@ -16871,7 +16884,7 @@
 /* 25 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<button onClick=\"");t.b(t.v(t.f("onClick",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  ");t.b(t.v(t.f("label",c,p,0)));t.b("\n" + i);t.b("</button>");t.b("\n");return t.fl(); },partials: {}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");if(!t.s(t.f("input",c,p,1),c,p,1,0,0,"")){t.b("<button onClick=\"");t.b(t.v(t.f("onClick",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  ");t.b(t.v(t.f("label",c,p,0)));t.b("\n" + i);t.b("</button>");t.b("\n" + i);};t.b("\n" + i);if(t.s(t.f("input",c,p,1),c,p,0,86,232,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<input id=\"");t.b(t.v(t.f("uid",c,p,0)));t.b("\" type=\"");t.b(t.v(t.f("type",c,p,0)));t.b("\" accept=\"");t.b(t.v(t.f("accept",c,p,0)));t.b("\" onChange=\"");t.b(t.v(t.f("onChange",c,p,0)));t.b("\" style=\"display: none;\" />");t.b("\n" + i);t.b("<label for=\"");t.b(t.v(t.f("uid",c,p,0)));t.b("\">");t.b(t.v(t.f("label",c,p,0)));t.b("</label>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}
 
 /***/ },
 /* 26 */

@@ -1,3 +1,10 @@
+{{^input}}
 <button onClick="{{onClick}}">
   {{label}}
 </button>
+{{/input}}
+
+{{#input}}
+<input id="{{uid}}" type="{{type}}" accept="{{accept}}" onChange="{{onChange}}" style="display: none;" />
+<label for="{{uid}}">{{label}}</label>
+{{/input}}

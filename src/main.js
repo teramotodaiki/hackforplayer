@@ -68,9 +68,21 @@ const init = (namespace) => {
         dom.dock = Object.assign({}, dom.dock, {visibility});
       };
 
+      const fileOpen = (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ({target:{result}}) => {
+          player.start([{ name: file.name, code: result }]);
+          editor.setValue(result);
+          event.target.value = ''; // Can upload same file
+        };
+        reader.readAsText(file);
+      };
+
       dom.menuButtons = [
         Element({ label: 'HACK', onClick: toggleDock }),
-        Element({ label: 'RELOAD', onClick: () => player.restart() })
+        Element({ label: 'RELOAD', onClick: () => player.restart() }),
+        Element({ label: 'OPEN', input: {type: 'file', accept: 'text/javascript'}, onChange: fileOpen })
       ];
 
       const run = () => {

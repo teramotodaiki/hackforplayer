@@ -71,8 +71,9 @@ const init = (namespace) => {
       const fileOpen = (event) => {
         const file = event.target.files[0];
         const reader = new FileReader();
-        reader.onload = (e) => {
-          player.start([{ name: file.name, code: e.target.result }]);
+        reader.onload = ({target:{result}}) => {
+          player.start([{ name: file.name, code: result }]);
+          editor.setValue(result);
           event.target.value = ''; // Can upload same file
         };
         reader.readAsText(file);

@@ -15,6 +15,7 @@ const DomInterface = require('./DomInterface');
 require('../scss/main.scss');
 
 const src = 'https://embed.hackforplay.xyz/open-source/game/alpha.html'; // CDN
+// const src = 'http://localhost:3000/game.html'; // [https://github.com/teramotodaiki/hackforplay-embed]
 
 const init = (namespace) => {
   const selectors = require('./selectors')(namespace);

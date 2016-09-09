@@ -131,10 +131,11 @@
 	        });
 	      dom.editorButtons = [
 	        Element({ label: 'RUN', onClick: run }),
+	        Element({ label: 'L', onClick: alignDock('left') }),
 	        Element({ label: 'T', onClick: alignDock('top') }),
-	        Element({ label: 'R', onClick: alignDock('right') }),
 	        Element({ label: 'B', onClick: alignDock('bottom') }),
-	        Element({ label: 'L', onClick: alignDock('left') })
+	        Element({ label: 'R', onClick: alignDock('right') }),
+	        Element({ label: 'HIDE', onClick: toggleDock })
 	      ];
 
 	      // Inline script
@@ -16876,13 +16877,13 @@
 /* 26 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.dock",c,p,0)));t.b(" dock-");t.b(t.v(t.d("dock.align",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"background-color: gray; visibility: ");t.b(t.v(t.d("dock.visibility",c,p,0)));t.b("; width: ");t.b(t.v(t.d("dock.width",c,p,0)));t.b("; height: ");t.b(t.v(t.d("dock.height",c,p,0)));t.b("\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("classNames.sizer",c,p,0)));t.b(" dock__sizer\"");t.b("\n" + i);t.b("    style=\"background-color: blue;\"");t.b("\n" + i);t.b("    draggable=\"true\"");t.b("\n" + i);t.b("    onDragEnd=\"");t.b(t.v(t.d("dock.sizer.onDragEnd",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  ></div>");t.b("\n" + i);t.b(t.rp("<editor0",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<editor0":{name:"editor", partials: {}, subs: {  }}}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.dock",c,p,0)));t.b(" dock-");t.b(t.v(t.d("dock.align",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"background-color: gray; visibility: ");t.b(t.v(t.d("dock.visibility",c,p,0)));t.b("; width: ");t.b(t.v(t.d("dock.width",c,p,0)));t.b("; height: ");t.b(t.v(t.d("dock.height",c,p,0)));t.b("\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("classNames.sizer",c,p,0)));t.b(" dock__sizer\"");t.b("\n" + i);t.b("    style=\"background-color: gray;\"");t.b("\n" + i);t.b("    draggable=\"true\"");t.b("\n" + i);t.b("    onDragEnd=\"");t.b(t.v(t.d("dock.sizer.onDragEnd",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  ></div>");t.b("\n" + i);t.b(t.rp("<editor0",c,p,"  "));t.b("</div>");t.b("\n");return t.fl(); },partials: {"<editor0":{name:"editor", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
 /* 27 */
 /***/ function(module, exports) {
 
-	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.editorWrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"display: flex; flex-direction: column; justify-content: stretch; flex: 1 1 auto; background-color: green; \"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editorButtons",c,p,0)));t.b("\" style=\"background-color: red\">");t.b("\n" + i);if(t.s(t.f("editorButtons",c,p,1),c,p,0,260,284,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editor",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }}}, subs: {  }}
+	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.editorWrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"display: flex; flex-direction: column; justify-content: stretch; flex: 1 1 auto;\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editorButtons",c,p,0)));t.b("\" style=\"background-color: gray\">");t.b("\n" + i);if(t.s(t.f("editorButtons",c,p,1),c,p,0,235,259,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.editor",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
 /* 28 */

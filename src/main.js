@@ -72,7 +72,7 @@ const init = (namespace, model) => {
         const file = event.target.files[0];
         const reader = new FileReader();
         reader.onload = ({target:{result}}) => {
-          player.start([{ name: file.name, code: result }]);
+          player.restart({ files: [{ name: file.name, code: result }] });
           editor.setValue(result);
           event.target.value = ''; // Can upload same file
         };
@@ -87,7 +87,7 @@ const init = (namespace, model) => {
 
       const run = () => {
         const code = editor.getValue();
-        player.start({ files: [{ name: 'main', code }] });
+        player.restart({ files: [{ name: 'main', code }] });
       };
       const alignDock = (align) =>
         () => dom.dock = Object.assign({}, dom.dock, {

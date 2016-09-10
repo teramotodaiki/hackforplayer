@@ -43,6 +43,7 @@ class Player extends EventTarget {
         .then(data => this.dispatchResizeEvent({data, child}));
       child.on('resize', (data) => this.dispatchResizeEvent({data, child}));
 
+      this.dispatchLoadEvent({child});
       return child;
     });
   }
@@ -59,6 +60,12 @@ class Player extends EventTarget {
 
   dispatchBeforeUnloadEvent({child}) {
     const event = new Event('beforeunload');
+    event.child = child;
+    this.dispatchEvent(event);
+  }
+
+  dispatchLoadEvent({child}) {
+    const event = new Event('load');
     event.child = child;
     this.dispatchEvent(event);
   }

@@ -63,10 +63,9 @@
 	const src = 'https://embed.hackforplay.xyz/open-source/game/alpha1.2.html'; // CDN
 	// const src = 'http://localhost:3000/game.html'; // [https://github.com/teramotodaiki/hackforplay-embed]
 
-	const init = (namespace) => {
+	const init = (namespace, model) => {
 	  const selectors = __webpack_require__(48)(namespace);
 	  const containers = document.querySelectorAll(selectors.container);
-	  console.log(selectors, containers);
 
 	  const players =
 	    Array.prototype.slice.call(containers)
@@ -134,7 +133,7 @@
 
 	      const run = () => {
 	        const code = editor.getValue();
-	        player.start([{ name: 'main', code }]);
+	        player.start({ files: [{ name: 'main', code }] });
 	      };
 	      const alignDock = (align) =>
 	        () => dom.dock = Object.assign({}, dom.dock, {
@@ -180,10 +179,13 @@
 	      player.addEventListener('resize', resizeTask);
 	      dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
-	      player.start([{
-	        name: 'main',
-	        code
-	      }]);
+	      model = Object.assign({
+	        files: [{
+	          name: 'main',
+	          code
+	        }]
+	      }, model || {});
+	      player.start(model);
 
 	      return player;
 	    });
@@ -193,9 +195,11 @@
 	// export global
 	window.h4p = (...args) =>
 	  new Promise((resolve, reject) => {
-	    addEventListener('load', () => {
-	      return resolve(init(...args));
-	    });
+	    document.readyState === 'complete' ?
+	      resolve(init(...args)) :
+	      addEventListener('load', () => {
+	        return resolve(init(...args));
+	      });
 	  });
 
 	h4p.Player = Player;
@@ -235,22 +239,23 @@
 	    this.addEventListener('beforeunload', (event) => event.child.destroy());
 	  }
 
-	  start(files) {
+	  start(model) {
 	    this._start();
 	    return new Postmate({
 	      container: document.body,
 	      url: this.src,
-	      model: {files}
+	      model
 	    })
 	    .then(child => {
 	      this._start = () => this.dispatchBeforeUnloadEvent({child});
-	      this.restart = () => this.start(files);
+	      this.restart = (modelUpdated) => this.start(Object.assign({}, model, modelUpdated));
 	      initPosition(child.frame);
 	      child.frame.style.position = 'absolute';
 	      child.get('size')
 	        .then(data => this.dispatchResizeEvent({data, child}));
 	      child.on('resize', (data) => this.dispatchResizeEvent({data, child}));
 
+	      this.dispatchLoadEvent({child});
 	      return child;
 	    });
 	  }
@@ -267,6 +272,12 @@
 
 	  dispatchBeforeUnloadEvent({child}) {
 	    const event = new Event('beforeunload');
+	    event.child = child;
+	    this.dispatchEvent(event);
+	  }
+
+	  dispatchLoadEvent({child}) {
+	    const event = new Event('load');
 	    event.child = child;
 	    this.dispatchEvent(event);
 	  }

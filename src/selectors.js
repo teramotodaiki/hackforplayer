@@ -9,13 +9,12 @@ const suffixes = {
   editorButtons: '__editor_buttons',
   editor: '__editor'
 };
-module.exports = (namespace = '.h4p') => {
+module.exports = (namespace = 'h4p') => {
 
   const selectors = {};
-  Object.keys(suffixes).forEach(key => selectors[key] = namespace + suffixes[key]);
-  const noDot = namespace.replace(/^\./, '');
+  Object.keys(suffixes).forEach(key => selectors[key] = '.' + namespace + suffixes[key]);
   selectors.htmlClass = {};
-  Object.keys(suffixes).forEach(key => selectors.htmlClass[key] = noDot + suffixes[key]);
+  Object.keys(suffixes).forEach(key => selectors.htmlClass[key] = namespace + suffixes[key]);
   return selectors;
 
 };

@@ -27,22 +27,23 @@ class Player extends EventTarget {
     this.addEventListener('beforeunload', (event) => event.child.destroy());
   }
 
-  start(files) {
+  start(model) {
     this._start();
     return new Postmate({
       container: document.body,
       url: this.src,
-      model: {files}
+      model
     })
     .then(child => {
       this._start = () => this.dispatchBeforeUnloadEvent({child});
-      this.restart = () => this.start(files);
+      this.restart = (modelUpdated) => this.start(Object.assign({}, model, modelUpdated));
       initPosition(child.frame);
       child.frame.style.position = 'absolute';
       child.get('size')
         .then(data => this.dispatchResizeEvent({data, child}));
       child.on('resize', (data) => this.dispatchResizeEvent({data, child}));
 
+      this.dispatchLoadEvent({child});
       return child;
     });
   }
@@ -59,6 +60,12 @@ class Player extends EventTarget {
 
   dispatchBeforeUnloadEvent({child}) {
     const event = new Event('beforeunload');
+    event.child = child;
+    this.dispatchEvent(event);
+  }
+
+  dispatchLoadEvent({child}) {
+    const event = new Event('load');
     event.child = child;
     this.dispatchEvent(event);
   }

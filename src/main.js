@@ -149,9 +149,11 @@ const init = (namespace, model) => {
 // export global
 window.h4p = (...args) =>
   new Promise((resolve, reject) => {
-    addEventListener('load', () => {
-      return resolve(init(...args));
-    });
+    document.readyState === 'complete' ?
+      resolve(init(...args)) :
+      addEventListener('load', () => {
+        return resolve(init(...args));
+      });
   });
 
 h4p.Player = Player;

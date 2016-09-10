@@ -17,7 +17,7 @@ require('../scss/main.scss');
 const src = 'https://embed.hackforplay.xyz/open-source/game/alpha1.2.html'; // CDN
 // const src = 'http://localhost:3000/game.html'; // [https://github.com/teramotodaiki/hackforplay-embed]
 
-const init = (namespace) => {
+const init = (namespace, model) => {
   const selectors = require('./selectors')(namespace);
   const containers = document.querySelectorAll(selectors.container);
 
@@ -87,7 +87,7 @@ const init = (namespace) => {
 
       const run = () => {
         const code = editor.getValue();
-        player.start([{ name: 'main', code }]);
+        player.start({ files: [{ name: 'main', code }] });
       };
       const alignDock = (align) =>
         () => dom.dock = Object.assign({}, dom.dock, {
@@ -133,10 +133,13 @@ const init = (namespace) => {
       player.addEventListener('resize', resizeTask);
       dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
-      player.start([{
-        name: 'main',
-        code
-      }]);
+      model = Object.assign({
+        files: [{
+          name: 'main',
+          code
+        }]
+      }, model || {});
+      player.start(model);
 
       return player;
     });

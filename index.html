@@ -16,13 +16,13 @@
     */
 
     // See ---- http://p5js.org
-    var P5 = require('https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.3/p5.min.js');
+    var p5 = require('https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.3/p5.min.js');
 
-    var p5 = new P5();
+    new p5();
     pixelDensity(1);
 
     resizeCanvas(720, 400);
-    Hack.setCanvas(p5.canvas);
+    Hack.setCanvas(canvas);
 
     window.draw = draw;
     window.mousePressed = mousePressed;
@@ -121,7 +121,7 @@
 
     </script>
     <div>
-      teramotodaiki 2016 (c) MIT License 
+      teramotodaiki 2016 (c) MIT License
       <a href="https://github.com/teramotodaiki/hackforplayer">GitHub</a>
     </div>
   </body>

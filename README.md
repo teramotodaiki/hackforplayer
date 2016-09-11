@@ -12,13 +12,13 @@ https://trello.com/b/gxWQpAnW/opensource-hackforplay
 Sorry, but now we are worked in **chrome only!!** X-P
 
 1. Clone this repo (or download zip)
-2. Open *example/local.html* your browser **as local file**
+2. Open *index.html* your browser **as local file**
 3. Ready? Let's click *HACK* and start hack-for-play!!
 
 
 ## How it works
 
-Default code is written in 
+Default code is written in
 ```html
 <script id="script1" type="hack">...</script>
 ```
@@ -31,4 +31,3 @@ You can write only **inline tags in html** (DON'T load local .js file).
 
 It provides that **just local scope** can work javascript.
 https://github.com/teramotodaiki/hackforplay-embed
-

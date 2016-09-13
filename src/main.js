@@ -26,28 +26,6 @@ const init = (models = {}) => {
       });
 
       dom.classNames = selectors.htmlClass;
-      const dragSizer = (event) => {
-        const left = (event.clientX / innerWidth * 100) >> 0;
-        const top = (event.clientY / innerHeight * 100) >> 0;
-        const dock = dom.dock;
-        const align = dock.align;
-
-        dom.dock = Object.assign({}, dom.dock, {
-          width:
-            align === 'top' || align === 'bottom' ? '100vw' :
-            align === 'left' ? (left + 'vw') : (100 - left + 'vw'),
-          height:
-            align === 'left' || align === 'right' ? '100vh' :
-            align === 'top' ? (top + 'vh') : (100 - top + 'vh')
-        });
-      };
-      dom.dock = {
-        visibility: 'hidden',
-        align: 'right',
-        width: '50vw',
-        height: '100vh',
-        sizer: Element({ onDragEnd: dragSizer })
-      };
 
       const toggleDock = () => {
         const editor = player.refs.editor;

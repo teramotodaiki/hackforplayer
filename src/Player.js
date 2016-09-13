@@ -2,6 +2,8 @@ const EventEmitter2 = require('eventemitter2');
 const Postmate = require('postmate/build/postmate.min');
 Postmate.debug = true;
 
+const getContainer = require('./getContainer');
+
 class Player extends EventEmitter2 {
 
   constructor() {
@@ -24,7 +26,7 @@ class Player extends EventEmitter2 {
         this.emit(namespace + '.beforeunload'); // call beforeunload
         this.lastModels[namespace] = model;
         return new Postmate({
-          container: document.body,
+          container: getContainer(),
           url: this.urls[namespace],
           model
         });

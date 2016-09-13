@@ -4,20 +4,12 @@ const stayBottom = require('./stayBottom');
 const coverAll = require('./coverAll');
 const Element = require('./createElementWithEvent');
 const partial = require('../templates/');
-
-const erd = require('element-resize-detector')({
-  strategy: "scroll" //<- For ultra performance.
-});
-
-
+const initPosition = require('./initPosition');
 const DomInterface = require('./DomInterface');
 
 require('../scss/main.scss');
 
-const src = 'https://embed.hackforplay.xyz/open-source/game/alpha1.2.html'; // CDN
-// const src = 'http://localhost:3000/game.html'; // [https://github.com/teramotodaiki/hackforplay-embed]
-
-const init = (namespace, model) => {
+const init = (namespace, models = {}) => {
   const selectors = require('./selectors')(namespace);
   const containers = document.querySelectorAll(selectors.container);
 
@@ -25,7 +17,7 @@ const init = (namespace, model) => {
     Array.prototype.slice.call(containers)
     .map(container => {
       // An instance of h4p.Player
-      const player = new Player({src});
+      const player = new Player();
 
       // An editor instance as a singleton
       const editor = makeEditor();
@@ -72,7 +64,7 @@ const init = (namespace, model) => {
         const file = event.target.files[0];
         const reader = new FileReader();
         reader.onload = ({target:{result}}) => {
-          player.restart({ files: [{ name: file.name, code: result }] });
+          player.restart('screen', { files: [{ name: file.name, code: result }] });
           editor.setValue(result);
           event.target.value = ''; // Can upload same file
         };
@@ -81,13 +73,13 @@ const init = (namespace, model) => {
 
       dom.menuButtons = [
         Element({ label: 'HACK', onClick: toggleDock }),
-        Element({ label: 'RELOAD', onClick: () => player.restart() }),
+        Element({ label: 'RELOAD', onClick: () => player.restart('screen') }),
         Element({ label: 'OPEN', input: {type: 'file', accept: 'text/javascript'}, onChange: fileOpen })
       ];
 
       const run = () => {
         const code = editor.getValue();
-        player.restart({ files: [{ name: 'main', code }] });
+        player.restart('screen', { files: [{ name: 'main', code }] });
       };
       const alignDock = (align) =>
         () => dom.dock = Object.assign({}, dom.dock, {
@@ -130,16 +122,26 @@ const init = (namespace, model) => {
 
       const resizeTask = stayBottom(dom);
       dom.addEventListener('screen.resize', resizeTask);
-      player.addEventListener('resize', resizeTask);
+      player.on('screen.resize', resizeTask);
       dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
-      model = Object.assign({
-        files: [{
-          name: 'main',
-          code
-        }]
-      }, model || {});
-      player.start(model);
+      player.on('screen.load', ({child}) => {
+        const frame = child.frame;
+        initPosition(frame);
+        frame.style.position = 'absolute';
+
+        const resized = ({width, height}) => player.emit('screen.resize', {frame, width, height});
+        child.get('size').then(resized);
+        child.on('resize', resized);
+      });
+
+      // Default
+      const files = [{
+        name: 'main',
+        code
+      }];
+
+      player.start('screen', Object.assign({}, {files}, models.screen));
 
       return player;
     });

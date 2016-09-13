@@ -1,119 +1,46 @@
-const EventTarget = require('event-target-shim');
+const EventEmitter2 = require('eventemitter2');
 const Postmate = require('postmate/build/postmate.min');
 Postmate.debug = true;
 
-const initPosition = require('./initPosition');
+class Player extends EventEmitter2 {
 
-class Player extends EventTarget {
-
-  constructor({src} = {}) {
+  constructor() {
     super();
 
-    this.src = src;
-
-    var width = 300, height = 150;
-    this.getContentSize = () => ({ width, height });
-    this.addEventListener('resize', () => {
-      width = event.data.width;
-      height = event.data.height;
-    });
-
-    // cannot access port directly
-    var port = null;
-    this.setPort = (value) => {
-      port = this._setPort(value, port);
+    this.lastModels = {};
+    this.urls = {
+      // screen: 'https://embed.hackforplay.xyz/open-source/game/alpha1.2.html'
+      screen: 'http://localhost:3000/game.html'
     };
+    this.promises = {};
 
-    this.addEventListener('beforeunload', (event) => event.child.destroy());
   }
 
-  start(model) {
-    this._start();
-    return new Postmate({
-      container: document.body,
-      url: this.src,
-      model
-    })
-    .then(child => {
-      this._start = () => this.dispatchBeforeUnloadEvent({child});
-      this.restart = (modelUpdated) => this.start(Object.assign({}, model, modelUpdated));
-      initPosition(child.frame);
-      child.frame.style.position = 'absolute';
-      child.get('size')
-        .then(data => this.dispatchResizeEvent({data, child}));
-      child.on('resize', (data) => this.dispatchResizeEvent({data, child}));
-
-      this.dispatchLoadEvent({child});
-      return child;
-    });
-  }
-  _start() {}
-  restart() {}
-
-  dispatchResizeEvent({data, child}) {
-    const event = new Event('resize');
-    event.frame = child.frame;
-    event.width = data.width;
-    event.height = data.height;
-    this.dispatchEvent(event);
-  }
-
-  dispatchBeforeUnloadEvent({child}) {
-    const event = new Event('beforeunload');
-    event.child = child;
-    this.dispatchEvent(event);
-  }
-
-  dispatchLoadEvent({child}) {
-    const event = new Event('load');
-    event.child = child;
-    this.dispatchEvent(event);
-  }
-
-  standBy(contentWindow) {
-    return new Promise((resolve, reject) => {
-      addEventListener('message', function task(event) {
-        if (event.source !== contentWindow) return;
-        removeEventListener('message', task);
-        resolve(event);
+  start(namespace, model) {
+    const prevent = this.promises[namespace] || Promise.resolve();
+    this.promises[namespace] =
+    prevent
+      .then(() => {
+        this.emit(namespace + '.beforeunload'); // call beforeunload
+        this.lastModels[namespace] = model;
+        return new Postmate({
+          container: document.body,
+          url: this.urls[namespace],
+          model
+        });
+      })
+      .then(child => {
+        this.once(namespace + '.beforeunload', () => child.destroy()); // set beforeunload
+        this.emit(namespace + '.load', {child});
+        return child;
       });
-    });
+    return this.promises[namespace];
   }
 
-  connect(contentWindow) {
-    return new Promise((resolve, reject) => {
-
-      // TODO: Request to reload if connected
-
-      this.standBy(contentWindow)
-      .then((event) => {
-        this.setPort(event.ports[0]);
-        resolve();
-      });
-    });
+  restart(namespace, modelUpdated = {}) {
+    return this.start(namespace, Object.assign({}, this.lastModels[namespace], modelUpdated));
   }
 
-  postMessage() {
-    throw new Error('Missing a port. It has not connected yet.');
-  }
-
-  _setPort(next, current) {
-    if (current) {
-      current.onmessage = null;
-    }
-    next.onmessage = (event) => {
-      this.dispatchEvent(event);
-      if (event.data.method) {
-        const partialEvent = new Event(event.data.method + '.message');
-        partialEvent.data = event.data;
-        this.dispatchEvent(partialEvent);
-      }
-    };
-    this.postMessage = (...args) => {
-      next.postMessage(...args);
-    };
-    return next;
-  }
 }
 
 module.exports = Player;

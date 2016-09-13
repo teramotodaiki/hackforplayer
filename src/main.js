@@ -1,10 +1,8 @@
 const Player = require('./Player');
-const makeEditor = require('./makeEditor');
 const stayBottom = require('./stayBottom');
 const coverAll = require('./coverAll');
 const Element = require('./createElementWithEvent');
 const partial = require('../templates/');
-const initPosition = require('./initPosition');
 const DomInterface = require('./DomInterface');
 
 require('../scss/main.scss');
@@ -86,8 +84,7 @@ const init = (models = {}) => {
 
       player.on('screen.load', ({child}) => {
         const frame = child.frame;
-        initPosition(frame);
-        frame.style.position = 'absolute';
+        frame.style.visibility = 'visible';
 
         const resized = ({width, height}) => player.emit('screen.resize', {frame, width, height});
         child.get('size').then(resized);
@@ -129,16 +126,11 @@ const init = (models = {}) => {
 
       player.on('editor.load', ({child}) => {
         child.on('run', (files) => player.emit('editor.run', {child}, files));
-        child.get('view').then((view) => alignment({child}, view));
         child.on('render', (view) => player.emit('editor.resize', {child}, view));
-        addEventListener('resize', function task () {
-          child.get('view').then((view) => alignment({child}, view));
-          player.once('editor.beforeunload', () => removeEventListener('resize', task));
-        });
-        child.frame.style.position = 'fixed';
-        child.frame.style['z-index'] = 1;
-        child.frame.style.border = '0 none';
-        child.frame.style['box-shadow'] = 'rgba(0, 0, 0, 0.156863) 0px 3px 10px, rgba(0, 0, 0, 0.227451) 0px 3px 10px';
+        const resized = () => child.get('view').then((view) => alignment({child}, view));
+        resized();
+        addEventListener('resize', resized);
+        player.once('editor.beforeunload', () => removeEventListener('resize', task));
       });
 
 

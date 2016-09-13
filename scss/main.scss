@@ -8,5 +8,20 @@
 
   iframe {
     visibility: hidden;
+    border: 0 none;
+    margin: 0px;
+    padding: 0px;
+
+    &.#{$prefix}frame_screen {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+
+    &.#{$prefix}frame_editor {
+      position: fixed;
+      box-shadow: rgba(0, 0, 0, 0.156863) 0px 3px 10px, rgba(0, 0, 0, 0.227451) 0px 3px 10px;
+    }
   }
+
 }

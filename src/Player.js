@@ -35,6 +35,7 @@ class Player extends EventEmitter2 {
       })
       .then(child => {
         this.once(namespace + '.beforeunload', () => child.destroy()); // set beforeunload
+        child.frame.classList.add(CSS_PREFIX + 'frame_' + namespace);
         this.refs[namespace] = child;
         this.emit(namespace + '.load', {child});
         return child;

@@ -47,6 +47,16 @@ class Player extends EventEmitter2 {
     return this.start(namespace, Object.assign({}, this.lastModels[namespace], modelUpdated));
   }
 
+  show(namespace) { this.classListOperation(namespace, 'add', 'show'); }
+  hide(namespace) { this.classListOperation(namespace, 'remove', 'show'); }
+  toggle(namespace) { this.classListOperation(namespace, 'toggle', 'show'); }
+
+  classListOperation(namespace, method, state) {
+    const child = this.refs[namespace];
+    if (!child) return;
+    child.frame.classList[method](CSS_PREFIX + 'frame-' + state);
+  }
+
 }
 
 module.exports = Player;

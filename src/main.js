@@ -27,13 +27,6 @@ const init = (models = {}) => {
 
       dom.classNames = selectors.htmlClass;
 
-      const toggleDock = () => {
-        const editor = player.refs.editor;
-        if (!editor) return;
-        const style = editor.frame.getCurrentStyle || getComputedStyle(editor.frame);
-        editor.frame.style.visibility = style.visibility === 'hidden' ? 'visible' : 'hidden';
-      };
-
       const fileOpen = (event) => {
         const file = event.target.files[0];
         const reader = new FileReader();
@@ -47,7 +40,7 @@ const init = (models = {}) => {
       };
 
       dom.menuButtons = [
-        Element({ label: 'HACK', onClick: toggleDock }),
+        Element({ label: 'HACK', onClick: () => player.toggle('editor') }),
         Element({ label: 'RELOAD', onClick: () => player.restart('screen') }),
         Element({ label: 'OPEN', input: {type: 'file', accept: 'text/javascript'}, onChange: fileOpen })
       ];
@@ -62,7 +55,7 @@ const init = (models = {}) => {
 
       player.on('screen.load', ({child}) => {
         const frame = child.frame;
-        frame.style.visibility = 'visible';
+        player.show('screen');
 
         const resized = ({width, height}) => player.emit('screen.resize', {frame, width, height});
         child.get('size').then(resized);

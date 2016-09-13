@@ -7,10 +7,14 @@
   margin: 0px;
 
   iframe {
-    visibility: hidden;
+    display: none;
     border: 0 none;
     margin: 0px;
     padding: 0px;
+
+    &.#{$prefix}frame-show {
+      display: block;
+    }
 
     &.#{$prefix}frame_screen {
       position: absolute;

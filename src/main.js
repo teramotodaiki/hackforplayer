@@ -15,9 +15,6 @@ const DomInterface = require('./DomInterface');
 
 require('../scss/main.scss');
 
-const src = 'https://embed.hackforplay.xyz/open-source/game/alpha1.2.html'; // CDN
-// const src = 'http://localhost:3000/game.html'; // [https://github.com/teramotodaiki/hackforplay-embed]
-
 const init = (namespace, model) => {
   const selectors = require('./selectors')(namespace);
   const containers = document.querySelectorAll(selectors.container);
@@ -26,7 +23,7 @@ const init = (namespace, model) => {
     Array.prototype.slice.call(containers)
     .map(container => {
       // An instance of h4p.Player
-      const player = new Player({src});
+      const player = new Player();
 
       // An editor instance as a singleton
       const editor = makeEditor();

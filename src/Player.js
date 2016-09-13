@@ -4,11 +4,14 @@ Postmate.debug = true;
 
 class Player extends EventTarget {
 
-  constructor({src} = {}) {
+  constructor() {
     super();
 
-    this.src = src;
     this.lastModels = {};
+    this.urls = {
+      // screen: 'https://embed.hackforplay.xyz/open-source/game/alpha1.2.html'
+      screen: 'http://localhost:3000/game.html'
+    };
 
     this.addEventListener('beforeunload', (event) => event.child.destroy());
   }
@@ -18,7 +21,7 @@ class Player extends EventTarget {
     this.lastModels[namespace] = model;
     return new Postmate({
       container: document.body,
-      url: this.src,
+      url: this.urls[namespace],
       model
     })
     .then(child => {

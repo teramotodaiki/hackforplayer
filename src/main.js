@@ -138,9 +138,7 @@ const init = (namespace, models = {}) => {
 
       // eval them
       player.on('editor.run', function ({child}, files) {
-        files.forEach(function (file) {
-          eval(file.code);
-        });
+        player.restart('screen', {files});
       });
 
       player.on('editor.resize', alignment);

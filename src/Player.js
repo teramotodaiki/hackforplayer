@@ -1,8 +1,8 @@
-const EventTarget = require('event-target-shim');
+const EventEmitter2 = require('eventemitter2');
 const Postmate = require('postmate/build/postmate.min');
 Postmate.debug = true;
 
-class Player extends EventTarget {
+class Player extends EventEmitter2 {
 
   constructor() {
     super();
@@ -13,7 +13,7 @@ class Player extends EventTarget {
       screen: 'http://localhost:3000/game.html'
     };
 
-    this.addEventListener('beforeunload', (event) => event.child.destroy());
+    this.on('beforeunload', (event) => event.child.destroy());
   }
 
   start(namespace, model) {
@@ -25,12 +25,13 @@ class Player extends EventTarget {
       model
     })
     .then(child => {
-      this._start = () => this.dispatchBeforeUnloadEvent({child});
+      const frame = child.frame;
+      this._start = () => this.emit('beforeunload', {child});
       child.get('size')
-        .then(data => this.dispatchResizeEvent({data, child}));
-      child.on('resize', (data) => this.dispatchResizeEvent({data, child}));
+        .then(({width, height}) => this.emit('resize', {frame, width, height}));
+      child.on('resize', ({width, height}) => this.emit('resize', {frame, width, height}));
 
-      this.dispatchLoadEvent({child});
+      this.emit('load', {child});
       return child;
     });
   }
@@ -39,27 +40,7 @@ class Player extends EventTarget {
   restart(namespace, modelUpdated = {}) {
     return this.start(namespace, Object.assign({}, this.lastModels[namespace], modelUpdated));
   }
-
-  dispatchResizeEvent({data, child}) {
-    const event = new Event('resize');
-    event.frame = child.frame;
-    event.width = data.width;
-    event.height = data.height;
-    this.dispatchEvent(event);
-  }
-
-  dispatchBeforeUnloadEvent({child}) {
-    const event = new Event('beforeunload');
-    event.child = child;
-    this.dispatchEvent(event);
-  }
-
-  dispatchLoadEvent({child}) {
-    const event = new Event('load');
-    event.child = child;
-    this.dispatchEvent(event);
-  }
-
+  
 }
 
 module.exports = Player;

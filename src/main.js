@@ -128,7 +128,7 @@ const init = (namespace, model) => {
 
       const resizeTask = stayBottom(dom);
       dom.addEventListener('screen.resize', resizeTask);
-      player.addEventListener('resize', resizeTask);
+      player.on('resize', resizeTask);
       dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
       model = Object.assign({
@@ -140,7 +140,7 @@ const init = (namespace, model) => {
 
       player.start('screen', model)
 
-      player.addEventListener('load', ({child}) => {
+      player.on('load', ({child}) => {
         initPosition(child.frame);
         child.frame.style.position = 'absolute';
       });

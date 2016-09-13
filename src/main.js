@@ -135,13 +135,74 @@ const init = (namespace, models = {}) => {
         child.on('resize', resized);
       });
 
+      // eval them
+      player.on('editor.run', function ({child}, files) {
+        files.forEach(function (file) {
+          eval(file.code);
+        });
+      });
+
+      player.on('editor.resize', alignment);
+      function alignment({child}, view) {
+        var x = view.edge.x, y = view.edge.y;
+        switch (view.align) {
+          case 'top':
+            setRect(0, 0, '100vw', y);
+            break;
+          case 'right':
+            setRect(x, 0, innerWidth - x, '100vh');
+            break;
+          case 'left':
+            setRect(0, 0, x, '100vh');
+            break;
+          case 'bottom':
+            setRect(0, y, '100vw', innerHeight - y);
+        }
+        function setRect(left, top, width, height) {
+          var ref = child.frame.style;
+          ref.left = unit(left);
+          ref.top = unit(top);
+          ref.width = unit(width);
+          ref.height = unit(height);
+        }
+        function unit(value) {
+          return value + (typeof value === 'number' ? 'px' : '');
+        }
+      }
+
+      player.on('editor.load', ({child}) => {
+        child.on('run', (files) => player.emit('editor.run', {child}, files));
+        child.get('view').then((view) => alignment({child}, view));
+        child.on('render', (view) => player.emit('editor.resize', {child}, view));
+        addEventListener('resize', function task () {
+          child.get('view').then((view) => alignment({child}, view));
+          player.once('editor.beforeunload', () => removeEventListener('resize', task));
+        });
+        child.frame.style.visibility = 'visible';
+        child.frame.style.display = 'block';
+        child.frame.style.position = 'fixed';
+        child.frame.style['z-index'] = 1;
+        child.frame.style.border = '0 none';
+        child.frame.style['box-shadow'] = 'rgba(0, 0, 0, 0.156863) 0px 3px 10px, rgba(0, 0, 0, 0.227451) 0px 3px 10px';
+      });
+
+
       // Default
       const files = [{
         name: 'main',
+        filename: 'main.js',
         code
       }];
+      const view = {
+        align: 'right',
+        edge: {
+          x: innerWidth / 2,
+          y: innerHeight / 2
+        }
+      };
 
       player.start('screen', Object.assign({}, {files}, models.screen));
+      player.start('editor', Object.assign({}, {files}, view, models.editor));
 
       return player;
     });

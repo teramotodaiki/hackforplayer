@@ -57,6 +57,18 @@ class Player extends EventEmitter2 {
     child.frame.classList[method](CSS_PREFIX + 'frame-' + state);
   }
 
+  setRect(namespace, left, top, width, height) {
+    const child = this.refs[namespace];
+    if (!child) return;
+    const ref = child.frame.style;
+    ref.left = unit(left);
+    ref.top = unit(top);
+    ref.width = unit(width);
+    ref.height = unit(height);
+  }
+
 }
+
+const unit = (value) => value + (typeof value === 'number' ? 'px' : '');
 
 module.exports = Player;

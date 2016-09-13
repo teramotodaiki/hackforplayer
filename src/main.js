@@ -67,33 +67,24 @@ const init = (models = {}) => {
         player.restart('screen', {files});
       });
 
-      player.on('editor.resize', alignment);
-      function alignment({child}, view) {
-        var x = view.edge.x, y = view.edge.y;
+      const alignment = ({child}, view) => {
+        const {x, y} = view.edge;
         switch (view.align) {
           case 'top':
-            setRect(0, 0, '100vw', y);
+            player.setRect('editor', 0, 0, '100vw', y);
             break;
           case 'right':
-            setRect(x, 0, innerWidth - x, '100vh');
+            player.setRect('editor', x, 0, innerWidth - x, '100vh');
             break;
           case 'left':
-            setRect(0, 0, x, '100vh');
+            player.setRect('editor', 0, 0, x, '100vh');
             break;
           case 'bottom':
-            setRect(0, y, '100vw', innerHeight - y);
+            player.setRect('editor', 0, y, '100vw', innerHeight - y);
+            break;
         }
-        function setRect(left, top, width, height) {
-          var ref = child.frame.style;
-          ref.left = unit(left);
-          ref.top = unit(top);
-          ref.width = unit(width);
-          ref.height = unit(height);
-        }
-        function unit(value) {
-          return value + (typeof value === 'number' ? 'px' : '');
-        }
-      }
+      };
+      player.on('editor.resize', alignment);
 
       player.on('editor.load', ({child}) => {
         child.on('run', (files) => player.emit('editor.run', {child}, files));

@@ -12,7 +12,7 @@ class DomInterface extends RendererInterface {
 
     this.state = new Map(initialState);
 
-    this.observed = ['screen', 'editor']; // Detect resize event
+    this.observed = ['screen']; // Detect resize event
 
     this.refs = {};
     this.addEventListener('render', this._onrender);
@@ -88,28 +88,12 @@ class DomInterface extends RendererInterface {
     this.state = this.state.set('partial', value);
   }
 
-  get dock() {
-    return this.renderProps.get('dock');
-  }
-
-  set dock(value) {
-    this.renderProps = this.renderProps.set('dock', value);
-  }
-
   get menuButtons() {
     return this.renderProps.get('menuButtons');
   }
 
   set menuButtons(value) {
     this.renderProps = this.renderProps.set('menuButtons', value);
-  }
-
-  get editorButtons() {
-    return this.renderProps.get('editorButtons');
-  }
-
-  set editorButtons(value) {
-    this.renderProps = this.renderProps.set('editorButtons', value);
   }
 
   get classNames() {

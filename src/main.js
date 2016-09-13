@@ -5,12 +5,6 @@ const coverAll = require('./coverAll');
 const Element = require('./createElementWithEvent');
 const partial = require('../templates/');
 const initPosition = require('./initPosition');
-
-const erd = require('element-resize-detector')({
-  strategy: "scroll" //<- For ultra performance.
-});
-
-
 const DomInterface = require('./DomInterface');
 
 require('../scss/main.scss');

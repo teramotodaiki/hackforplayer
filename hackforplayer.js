@@ -44,221 +44,286 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Player = __webpack_require__(1);
-	const stayBottom = __webpack_require__(13);
-	const Element = __webpack_require__(15);
-	const partial = __webpack_require__(18);
-	const DomInterface = __webpack_require__(24);
+	'use strict';
 
-	__webpack_require__(46);
+	var Player = __webpack_require__(1);
+	var stayBottom = __webpack_require__(5);
+	var Element = __webpack_require__(6);
+	var partial = __webpack_require__(9);
+	var DomInterface = __webpack_require__(15);
 
-	const init = (models = {}) => {
-	  const selectors = __webpack_require__(48);
-	  const containers = document.querySelectorAll(selectors.container);
+	__webpack_require__(37);
 
-	  const players =
-	    Array.prototype.slice.call(containers)
-	    .map(container => {
-	      // An instance of h4p.Player
-	      const player = new Player();
+	var init = function init() {
+	  var models = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-	      // DOM renderer interface
-	      const dom = new DomInterface({
-	        container,
-	        selectors,
-	        template: partial.content,
-	        partial
-	      });
+	  var selectors = __webpack_require__(41);
+	  var containers = document.querySelectorAll(selectors.container);
 
-	      dom.classNames = selectors.htmlClass;
+	  var players = Array.prototype.slice.call(containers).map(function (container) {
+	    // An instance of h4p.Player
+	    var player = new Player();
 
-	      const fileOpen = (event) => {
-	        const file = event.target.files[0];
-	        const reader = new FileReader();
-	        reader.onload = ({target:{result}}) => {
-	          const files = [{ name: file.name, filename: file.name, code: result }];
-	          player.restart('screen', {files});
-	          player.restart('editor', {files});
-	          event.target.value = ''; // Can upload same file
-	        };
-	        reader.readAsText(file);
-	      };
-
-	      dom.menuButtons = [
-	        Element({ label: 'HACK', onClick: () => player.toggle('editor') }),
-	        Element({ label: 'RELOAD', onClick: () => player.restart('screen') }),
-	        Element({ label: 'OPEN', input: {type: 'file', accept: 'text/javascript'}, onChange: fileOpen })
-	      ];
-
-	      // Inline script
-	      const query = container.getAttribute('data-target');
-	      const code = query && document.querySelector(query).textContent;
-
-	      const resizeTask = stayBottom(dom);
-	      dom.addEventListener('screen.resize', resizeTask);
-	      player.on('screen.resize', resizeTask);
-
-	      player.on('screen.load', ({child}) => {
-	        const frame = child.frame;
-	        player.show('screen');
-
-	        const resized = ({width, height}) => player.emit('screen.resize', {frame, width, height});
-	        child.get('size').then(resized);
-	        child.on('resize', resized);
-	      });
-
-	      // eval them
-	      player.on('editor.run', function ({child}, files) {
-	        player.restart('screen', {files});
-	      });
-
-	      const alignment = ({child}, view) => {
-	        const {x, y} = view.edge;
-	        switch (view.align) {
-	          case 'top':
-	            player.setRect('editor', 0, 0, '100vw', y);
-	            break;
-	          case 'right':
-	            player.setRect('editor', x, 0, innerWidth - x, '100vh');
-	            break;
-	          case 'left':
-	            player.setRect('editor', 0, 0, x, '100vh');
-	            break;
-	          case 'bottom':
-	            player.setRect('editor', 0, y, '100vw', innerHeight - y);
-	            break;
-	        }
-	      };
-	      player.on('editor.resize', alignment);
-
-	      player.on('editor.load', ({child}) => {
-	        child.on('run', (files) => player.emit('editor.run', {child}, files));
-	        child.on('render', (view) => player.emit('editor.resize', {child}, view));
-	        const resized = () => child.get('view').then((view) => alignment({child}, view));
-	        resized();
-	        addEventListener('resize', resized);
-	        player.once('editor.beforeunload', () => removeEventListener('resize', task));
-	      });
-
-
-	      // Default
-	      const files = [{
-	        name: 'main',
-	        filename: 'main.js',
-	        code
-	      }];
-	      const view = {
-	        align: 'right',
-	        edge: {
-	          x: innerWidth / 2,
-	          y: innerHeight / 2
-	        }
-	      };
-
-	      player.start('screen', Object.assign({}, {files}, models.screen));
-	      player.start('editor', Object.assign({}, {files}, view, models.editor));
-
-	      return player;
+	    // DOM renderer interface
+	    var dom = new DomInterface({
+	      container: container,
+	      selectors: selectors,
+	      template: partial.content,
+	      partial: partial
 	    });
+
+	    dom.classNames = selectors.htmlClass;
+
+	    var fileOpen = function fileOpen(event) {
+	      var file = event.target.files[0];
+	      var reader = new FileReader();
+	      reader.onload = function (_ref) {
+	        var result = _ref.target.result;
+
+	        var files = [{ name: file.name, filename: file.name, code: result }];
+	        player.restart('screen', { files: files });
+	        player.restart('editor', { files: files });
+	        event.target.value = ''; // Can upload same file
+	      };
+	      reader.readAsText(file);
+	    };
+
+	    dom.menuButtons = [Element({ label: 'HACK', onClick: function onClick() {
+	        return player.toggle('editor');
+	      } }), Element({ label: 'RELOAD', onClick: function onClick() {
+	        return player.restart('screen');
+	      } }), Element({ label: 'OPEN', input: { type: 'file', accept: 'text/javascript' }, onChange: fileOpen })];
+
+	    // Inline script
+	    var query = container.getAttribute('data-target');
+	    var code = query && document.querySelector(query).textContent;
+
+	    var resizeTask = stayBottom(dom);
+	    dom.addEventListener('screen.resize', resizeTask);
+	    player.on('screen.resize', resizeTask);
+
+	    player.on('screen.load', function (_ref2) {
+	      var child = _ref2.child;
+
+	      var frame = child.frame;
+	      player.show('screen');
+
+	      var resized = function resized(_ref3) {
+	        var width = _ref3.width;
+	        var height = _ref3.height;
+	        return player.emit('screen.resize', { frame: frame, width: width, height: height });
+	      };
+	      child.get('size').then(resized);
+	      child.on('resize', resized);
+	    });
+
+	    // eval them
+	    player.on('editor.run', function (_ref4, files) {
+	      var child = _ref4.child;
+
+	      player.restart('screen', { files: files });
+	    });
+
+	    var alignment = function alignment(_ref5, view) {
+	      var child = _ref5.child;
+	      var _view$edge = view.edge;
+	      var x = _view$edge.x;
+	      var y = _view$edge.y;
+
+	      switch (view.align) {
+	        case 'top':
+	          player.setRect('editor', 0, 0, '100vw', y);
+	          break;
+	        case 'right':
+	          player.setRect('editor', x, 0, innerWidth - x, '100vh');
+	          break;
+	        case 'left':
+	          player.setRect('editor', 0, 0, x, '100vh');
+	          break;
+	        case 'bottom':
+	          player.setRect('editor', 0, y, '100vw', innerHeight - y);
+	          break;
+	      }
+	    };
+	    player.on('editor.resize', alignment);
+
+	    player.on('editor.load', function (_ref6) {
+	      var child = _ref6.child;
+
+	      child.on('run', function (files) {
+	        return player.emit('editor.run', { child: child }, files);
+	      });
+	      child.on('render', function (view) {
+	        return player.emit('editor.resize', { child: child }, view);
+	      });
+	      var resized = function resized() {
+	        return child.get('view').then(function (view) {
+	          return alignment({ child: child }, view);
+	        });
+	      };
+	      resized();
+	      addEventListener('resize', resized);
+	      player.once('editor.beforeunload', function () {
+	        return removeEventListener('resize', task);
+	      });
+	    });
+
+	    // Default
+	    var files = [{
+	      name: 'main',
+	      filename: 'main.js',
+	      code: code
+	    }];
+	    var view = {
+	      align: 'right',
+	      edge: {
+	        x: innerWidth / 2,
+	        y: innerHeight / 2
+	      }
+	    };
+
+	    player.start('screen', Object.assign({}, { files: files }, models.screen));
+	    player.start('editor', Object.assign({}, { files: files }, view, models.editor));
+
+	    return player;
+	  });
 
 	  return players;
 	};
 
-	const h4p = (...args) =>
-	  new Promise((resolve, reject) => {
-	    document.readyState === 'complete' ?
-	      resolve(init(...args)) :
-	      addEventListener('load', () => {
-	        return resolve(init(...args));
-	      });
+	var h4p = function h4p() {
+	  for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	    args[_key] = arguments[_key];
+	  }
+
+	  return new Promise(function (resolve, reject) {
+	    document.readyState === 'complete' ? resolve(init.apply(undefined, args)) : addEventListener('load', function () {
+	      return resolve(init.apply(undefined, args));
+	    });
 	  });
+	};
 
 	h4p.Player = Player;
-	h4p.trigger = __webpack_require__(16)(("h4p")).trigger;
+	h4p.trigger = __webpack_require__(7)(("h4p")).trigger;
 
 	// export global
 	window[("h4p")] = h4p;
-
 
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const EventEmitter2 = __webpack_require__(2);
-	const Postmate = __webpack_require__(3);
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var EventEmitter2 = __webpack_require__(2);
+	var Postmate = __webpack_require__(3);
 	Postmate.debug = true;
 
-	const getFrameContainer = __webpack_require__(4);
+	var getFrameContainer = __webpack_require__(4);
 
-	class Player extends EventEmitter2 {
+	var Player = function (_EventEmitter) {
+	  _inherits(Player, _EventEmitter);
 
-	  constructor() {
-	    super();
+	  function Player() {
+	    _classCallCheck(this, Player);
 
-	    this.lastModels = {};
-	    this.urls = {
+	    var _this = _possibleConstructorReturn(this, (Player.__proto__ || Object.getPrototypeOf(Player)).call(this));
+
+	    _this.lastModels = {};
+	    _this.urls = {
 	      // screen: 'https://embed.hackforplay.xyz/open-source/game/alpha1.2.html'
 	      screen: 'http://localhost:3000/game.html',
 	      editor: 'http://localhost:3001/editor.html'
 	    };
-	    this.promises = {};
-	    this.refs = {};
+	    _this.promises = {};
+	    _this.refs = {};
 
+	    return _this;
 	  }
 
-	  start(namespace, model) {
-	    const prevent = this.promises[namespace] || Promise.resolve();
-	    this.promises[namespace] =
-	    prevent
-	      .then(() => {
-	        this.emit(namespace + '.beforeunload'); // call beforeunload
-	        this.lastModels[namespace] = model;
+	  _createClass(Player, [{
+	    key: 'start',
+	    value: function start(namespace, model) {
+	      var _this2 = this;
+
+	      var prevent = this.promises[namespace] || Promise.resolve();
+	      this.promises[namespace] = prevent.then(function () {
+	        _this2.emit(namespace + '.beforeunload'); // call beforeunload
+	        _this2.lastModels[namespace] = model;
 	        return new Postmate({
 	          container: getFrameContainer(),
-	          url: this.urls[namespace],
-	          model
+	          url: _this2.urls[namespace],
+	          model: model
 	        });
-	      })
-	      .then(child => {
-	        this.once(namespace + '.beforeunload', () => child.destroy()); // set beforeunload
+	      }).then(function (child) {
+	        _this2.once(namespace + '.beforeunload', function () {
+	          return child.destroy();
+	        }); // set beforeunload
 	        child.frame.classList.add(("h4p__") + 'frame_' + namespace);
-	        this.refs[namespace] = child;
-	        this.emit(namespace + '.load', {child});
+	        _this2.refs[namespace] = child;
+	        _this2.emit(namespace + '.load', { child: child });
 	        return child;
 	      });
-	    return this.promises[namespace];
-	  }
+	      return this.promises[namespace];
+	    }
+	  }, {
+	    key: 'restart',
+	    value: function restart(namespace) {
+	      var modelUpdated = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-	  restart(namespace, modelUpdated = {}) {
-	    return this.start(namespace, Object.assign({}, this.lastModels[namespace], modelUpdated));
-	  }
+	      return this.start(namespace, Object.assign({}, this.lastModels[namespace], modelUpdated));
+	    }
+	  }, {
+	    key: 'show',
+	    value: function show(namespace) {
+	      this.classListOperation(namespace, 'add', 'show');
+	    }
+	  }, {
+	    key: 'hide',
+	    value: function hide(namespace) {
+	      this.classListOperation(namespace, 'remove', 'show');
+	    }
+	  }, {
+	    key: 'toggle',
+	    value: function toggle(namespace) {
+	      this.classListOperation(namespace, 'toggle', 'show');
+	    }
+	  }, {
+	    key: 'classListOperation',
+	    value: function classListOperation(namespace, method, state) {
+	      var child = this.refs[namespace];
+	      if (!child) return;
+	      child.frame.classList[method](("h4p__") + 'frame-' + state);
+	    }
+	  }, {
+	    key: 'setRect',
+	    value: function setRect(namespace, left, top, width, height) {
+	      var child = this.refs[namespace];
+	      if (!child) return;
+	      var ref = child.frame.style;
+	      ref.left = unit(left);
+	      ref.top = unit(top);
+	      ref.width = unit(width);
+	      ref.height = unit(height);
+	    }
+	  }]);
 
-	  show(namespace) { this.classListOperation(namespace, 'add', 'show'); }
-	  hide(namespace) { this.classListOperation(namespace, 'remove', 'show'); }
-	  toggle(namespace) { this.classListOperation(namespace, 'toggle', 'show'); }
+	  return Player;
+	}(EventEmitter2);
 
-	  classListOperation(namespace, method, state) {
-	    const child = this.refs[namespace];
-	    if (!child) return;
-	    child.frame.classList[method](("h4p__") + 'frame-' + state);
-	  }
-
-	  setRect(namespace, left, top, width, height) {
-	    const child = this.refs[namespace];
-	    if (!child) return;
-	    const ref = child.frame.style;
-	    ref.left = unit(left);
-	    ref.top = unit(top);
-	    ref.width = unit(width);
-	    ref.height = unit(height);
-	  }
-
-	}
-
-	const unit = (value) => value + (typeof value === 'number' ? 'px' : '');
+	var unit = function unit(value) {
+	  return value + (typeof value === 'number' ? 'px' : '');
+	};
 
 	module.exports = Player;
-
 
 /***/ },
 /* 2 */
@@ -996,9 +1061,11 @@
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var container;
 
-	module.exports = () => {
+	module.exports = function () {
 	  if (!container) {
 	    container = document.createElement('div');
 	    container.classList.add(("h4p__") + 'frame_container');
@@ -1007,350 +1074,42 @@
 	  return container;
 	};
 
-
 /***/ },
-/* 5 */,
-/* 6 */,
-/* 7 */,
-/* 8 */,
-/* 9 */,
-/* 10 */
+/* 5 */
 /***/ function(module, exports) {
 
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	// css base code, injected by the css-loader
-	module.exports = function() {
-		var list = [];
+	'use strict';
 
-		// return the list of modules as css string
-		list.toString = function toString() {
-			var result = [];
-			for(var i = 0; i < this.length; i++) {
-				var item = this[i];
-				if(item[2]) {
-					result.push("@media " + item[2] + "{" + item[1] + "}");
-				} else {
-					result.push(item[1]);
-				}
-			}
-			return result.join("");
-		};
-
-		// import a list of modules into the list
-		list.i = function(modules, mediaQuery) {
-			if(typeof modules === "string")
-				modules = [[null, modules, ""]];
-			var alreadyImportedModules = {};
-			for(var i = 0; i < this.length; i++) {
-				var id = this[i][0];
-				if(typeof id === "number")
-					alreadyImportedModules[id] = true;
-			}
-			for(i = 0; i < modules.length; i++) {
-				var item = modules[i];
-				// skip already imported module
-				// this implementation is not 100% perfect for weird media query combinations
-				//  when a module is imported multiple times with different media queries.
-				//  I hope this will never occur (Hey this way we have smaller bundles)
-				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-					if(mediaQuery && !item[2]) {
-						item[2] = mediaQuery;
-					} else if(mediaQuery) {
-						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-					}
-					list.push(item);
-				}
-			}
-		};
-		return list;
-	};
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-		MIT License http://www.opensource.org/licenses/mit-license.php
-		Author Tobias Koppers @sokra
-	*/
-	var stylesInDom = {},
-		memoize = function(fn) {
-			var memo;
-			return function () {
-				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-				return memo;
-			};
-		},
-		isOldIE = memoize(function() {
-			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
-		}),
-		getHeadElement = memoize(function () {
-			return document.head || document.getElementsByTagName("head")[0];
-		}),
-		singletonElement = null,
-		singletonCounter = 0,
-		styleElementsInsertedAtTop = [];
-
-	module.exports = function(list, options) {
-		if(false) {
-			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-		}
-
-		options = options || {};
-		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-		// tags it will allow on a page
-		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
-
-		// By default, add <style> tags to the bottom of <head>.
-		if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
-
-		var styles = listToStyles(list);
-		addStylesToDom(styles, options);
-
-		return function update(newList) {
-			var mayRemove = [];
-			for(var i = 0; i < styles.length; i++) {
-				var item = styles[i];
-				var domStyle = stylesInDom[item.id];
-				domStyle.refs--;
-				mayRemove.push(domStyle);
-			}
-			if(newList) {
-				var newStyles = listToStyles(newList);
-				addStylesToDom(newStyles, options);
-			}
-			for(var i = 0; i < mayRemove.length; i++) {
-				var domStyle = mayRemove[i];
-				if(domStyle.refs === 0) {
-					for(var j = 0; j < domStyle.parts.length; j++)
-						domStyle.parts[j]();
-					delete stylesInDom[domStyle.id];
-				}
-			}
-		};
-	}
-
-	function addStylesToDom(styles, options) {
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			if(domStyle) {
-				domStyle.refs++;
-				for(var j = 0; j < domStyle.parts.length; j++) {
-					domStyle.parts[j](item.parts[j]);
-				}
-				for(; j < item.parts.length; j++) {
-					domStyle.parts.push(addStyle(item.parts[j], options));
-				}
-			} else {
-				var parts = [];
-				for(var j = 0; j < item.parts.length; j++) {
-					parts.push(addStyle(item.parts[j], options));
-				}
-				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-			}
-		}
-	}
-
-	function listToStyles(list) {
-		var styles = [];
-		var newStyles = {};
-		for(var i = 0; i < list.length; i++) {
-			var item = list[i];
-			var id = item[0];
-			var css = item[1];
-			var media = item[2];
-			var sourceMap = item[3];
-			var part = {css: css, media: media, sourceMap: sourceMap};
-			if(!newStyles[id])
-				styles.push(newStyles[id] = {id: id, parts: [part]});
-			else
-				newStyles[id].parts.push(part);
-		}
-		return styles;
-	}
-
-	function insertStyleElement(options, styleElement) {
-		var head = getHeadElement();
-		var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
-		if (options.insertAt === "top") {
-			if(!lastStyleElementInsertedAtTop) {
-				head.insertBefore(styleElement, head.firstChild);
-			} else if(lastStyleElementInsertedAtTop.nextSibling) {
-				head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
-			} else {
-				head.appendChild(styleElement);
-			}
-			styleElementsInsertedAtTop.push(styleElement);
-		} else if (options.insertAt === "bottom") {
-			head.appendChild(styleElement);
-		} else {
-			throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-		}
-	}
-
-	function removeStyleElement(styleElement) {
-		styleElement.parentNode.removeChild(styleElement);
-		var idx = styleElementsInsertedAtTop.indexOf(styleElement);
-		if(idx >= 0) {
-			styleElementsInsertedAtTop.splice(idx, 1);
-		}
-	}
-
-	function createStyleElement(options) {
-		var styleElement = document.createElement("style");
-		styleElement.type = "text/css";
-		insertStyleElement(options, styleElement);
-		return styleElement;
-	}
-
-	function createLinkElement(options) {
-		var linkElement = document.createElement("link");
-		linkElement.rel = "stylesheet";
-		insertStyleElement(options, linkElement);
-		return linkElement;
-	}
-
-	function addStyle(obj, options) {
-		var styleElement, update, remove;
-
-		if (options.singleton) {
-			var styleIndex = singletonCounter++;
-			styleElement = singletonElement || (singletonElement = createStyleElement(options));
-			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-		} else if(obj.sourceMap &&
-			typeof URL === "function" &&
-			typeof URL.createObjectURL === "function" &&
-			typeof URL.revokeObjectURL === "function" &&
-			typeof Blob === "function" &&
-			typeof btoa === "function") {
-			styleElement = createLinkElement(options);
-			update = updateLink.bind(null, styleElement);
-			remove = function() {
-				removeStyleElement(styleElement);
-				if(styleElement.href)
-					URL.revokeObjectURL(styleElement.href);
-			};
-		} else {
-			styleElement = createStyleElement(options);
-			update = applyToTag.bind(null, styleElement);
-			remove = function() {
-				removeStyleElement(styleElement);
-			};
-		}
-
-		update(obj);
-
-		return function updateStyle(newObj) {
-			if(newObj) {
-				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-					return;
-				update(obj = newObj);
-			} else {
-				remove();
-			}
-		};
-	}
-
-	var replaceText = (function () {
-		var textStore = [];
-
-		return function (index, replacement) {
-			textStore[index] = replacement;
-			return textStore.filter(Boolean).join('\n');
-		};
-	})();
-
-	function applyToSingletonTag(styleElement, index, remove, obj) {
-		var css = remove ? "" : obj.css;
-
-		if (styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = replaceText(index, css);
-		} else {
-			var cssNode = document.createTextNode(css);
-			var childNodes = styleElement.childNodes;
-			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-			if (childNodes.length) {
-				styleElement.insertBefore(cssNode, childNodes[index]);
-			} else {
-				styleElement.appendChild(cssNode);
-			}
-		}
-	}
-
-	function applyToTag(styleElement, obj) {
-		var css = obj.css;
-		var media = obj.media;
-
-		if(media) {
-			styleElement.setAttribute("media", media)
-		}
-
-		if(styleElement.styleSheet) {
-			styleElement.styleSheet.cssText = css;
-		} else {
-			while(styleElement.firstChild) {
-				styleElement.removeChild(styleElement.firstChild);
-			}
-			styleElement.appendChild(document.createTextNode(css));
-		}
-	}
-
-	function updateLink(linkElement, obj) {
-		var css = obj.css;
-		var sourceMap = obj.sourceMap;
-
-		if(sourceMap) {
-			// http://stackoverflow.com/a/26603875
-			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-		}
-
-		var blob = new Blob([css], { type: "text/css" });
-
-		var oldSrc = linkElement.href;
-
-		linkElement.href = URL.createObjectURL(blob);
-
-		if(oldSrc)
-			URL.revokeObjectURL(oldSrc);
-	}
-
-
-/***/ },
-/* 12 */,
-/* 13 */
-/***/ function(module, exports) {
-
-	module.exports = (dom) => {
+	module.exports = function (dom) {
 
 	  var _frame, _width, _height;
 
-	  return ({frame, width, height}) => {
+	  return function (_ref) {
+	    var frame = _ref.frame;
+	    var width = _ref.width;
+	    var height = _ref.height;
+
 	    _frame = typeof frame === 'undefined' ? _frame : frame;
 	    _width = typeof width === 'undefined' ? _width : width;
 	    _height = typeof height === 'undefined' ? _height : height;
 
 	    resizeHandler(dom, _frame, _width, _height);
 	  };
-
 	};
 
 	function resizeHandler(dom, frame, width, height) {
 	  if (!dom.refs.screen || !frame) return;
-	  const screenRect = dom.refs.screen.getBoundingClientRect();
-	  const frameStyle = getComputedStyle(frame);
-	  const offset = {
+	  var screenRect = dom.refs.screen.getBoundingClientRect();
+	  var frameStyle = getComputedStyle(frame);
+	  var offset = {
 	    x: frameStyle.position === 'absolute' ? pageXOffset : 0,
-	    y: frameStyle.position === 'absolute' ? pageYOffset : 0,
+	    y: frameStyle.position === 'absolute' ? pageYOffset : 0
 	  };
-	  const contentSize = { width, height };
+	  var contentSize = { width: width, height: height };
 
-	  const ratio = (size) => Math.max(size.height, 1) / Math.max(size.width, 1);
+	  var ratio = function ratio(size) {
+	    return Math.max(size.height, 1) / Math.max(size.width, 1);
+	  };
 	  if (ratio(screenRect) > ratio(contentSize)) {
 	    frame.width = screenRect.width;
 	    frame.height = screenRect.width * ratio(contentSize);
@@ -1368,41 +1127,46 @@
 	  }
 	};
 
-
 /***/ },
-/* 14 */,
-/* 15 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const on = __webpack_require__(16)(("h4p")).on;
-	const Map = __webpack_require__(17).Map;
+	'use strict';
 
-	module.exports = (props) =>
-	  new Map(props)
-	  .map(value => typeof value === 'function' ? on(value) : value)
-	  .set('uid', Math.random())
-	  .toJS();
+	var on = __webpack_require__(7)(("h4p")).on;
+	var Map = __webpack_require__(8).Map;
 
+	module.exports = function (props) {
+	  return new Map(props).map(function (value) {
+	    return typeof value === 'function' ? on(value) : value;
+	  }).set('uid', Math.random()).toJS();
+	};
 
 /***/ },
-/* 16 */
+/* 7 */
 /***/ function(module, exports) {
 
-	var _listeners = {}, i = 0;
+	'use strict';
 
-	const trigger = (key, thisObj, event) => _listeners[key].call(thisObj, event);
-	module.exports = (namespace) => ({
-	  on: (handler) => {
-	    const key = '_' + ++i;
-	    _listeners[key] = handler;
-	    return `${namespace}.trigger('${key}', this, event);`;
-	  },
-	  trigger
-	});
+	var _listeners = {},
+	    i = 0;
 
+	var trigger = function trigger(key, thisObj, event) {
+	  return _listeners[key].call(thisObj, event);
+	};
+	module.exports = function (namespace) {
+	  return {
+	    on: function on(handler) {
+	      var key = '_' + ++i;
+	      _listeners[key] = handler;
+	      return namespace + '.trigger(\'' + key + '\', this, event);';
+	    },
+	    trigger: trigger
+	  };
+	};
 
 /***/ },
-/* 17 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -6386,19 +6150,20 @@
 	}));
 
 /***/ },
-/* 18 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Hogan = __webpack_require__(19);
+	'use strict';
+
+	var Hogan = __webpack_require__(10);
 
 	module.exports = {
-	  content: new Hogan.Template(__webpack_require__(22)),
-	  button: new Hogan.Template(__webpack_require__(23)),
+	  content: new Hogan.Template(__webpack_require__(13)),
+	  button: new Hogan.Template(__webpack_require__(14))
 	};
 
-
 /***/ },
-/* 19 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -6418,14 +6183,14 @@
 
 	// This file is for use with Node.js. See dist/ for browser files.
 
-	var Hogan = __webpack_require__(20);
-	Hogan.Template = __webpack_require__(21).Template;
+	var Hogan = __webpack_require__(11);
+	Hogan.Template = __webpack_require__(12).Template;
 	Hogan.template = Hogan.Template;
 	module.exports = Hogan;
 
 
 /***/ },
-/* 20 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -6854,7 +6619,7 @@
 
 
 /***/ },
-/* 21 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -7201,150 +6966,179 @@
 
 
 /***/ },
-/* 22 */
+/* 13 */
 /***/ function(module, exports) {
 
 	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div");t.b("\n" + i);t.b("  class=\"");t.b(t.v(t.d("classNames.wrapper",c,p,0)));t.b("\"");t.b("\n" + i);t.b("  style=\"width: 100%; height: 100%; display: flex; flex-direction: column; align-items: stretch\"");t.b("\n" + i);t.b(">");t.b("\n" + i);t.b("  <div class=\"");t.b(t.v(t.d("classNames.screen",c,p,0)));t.b("\" style=\"flex: 1 1 auto;\"></div>");t.b("\n" + i);t.b("  <div");t.b("\n" + i);t.b("    class=\"");t.b(t.v(t.d("classNames.menuButtons",c,p,0)));t.b("\"");t.b("\n" + i);t.b("    style=\"width: 100%; height: 2rem; flex: 0 0 auto; background-color: gray\"");t.b("\n" + i);t.b("  >");t.b("\n" + i);if(t.s(t.f("menuButtons",c,p,1),c,p,0,353,377,"{{ }}")){t.rs(c,p,function(c,p,t){t.b(t.rp("<button0",c,p,"      "));});c.pop();}t.b("  </div>");t.b("\n" + i);t.b("</div>");t.b("\n");return t.fl(); },partials: {"<button0":{name:"button", partials: {}, subs: {  }}}, subs: {  }}
 
 /***/ },
-/* 23 */
+/* 14 */
 /***/ function(module, exports) {
 
 	module.exports = {code: function (c,p,i) { var t=this;t.b(i=i||"");if(!t.s(t.f("input",c,p,1),c,p,1,0,0,"")){if(!t.s(t.f("a",c,p,1),c,p,1,0,0,"")){t.b("<button onClick=\"");t.b(t.v(t.f("onClick",c,p,0)));t.b("\">");t.b("\n" + i);t.b("  ");t.b(t.v(t.f("label",c,p,0)));t.b("\n" + i);t.b("</button>");t.b("\n" + i);};};t.b("\n" + i);if(t.s(t.f("input",c,p,1),c,p,0,100,246,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<input id=\"");t.b(t.v(t.f("uid",c,p,0)));t.b("\" type=\"");t.b(t.v(t.f("type",c,p,0)));t.b("\" accept=\"");t.b(t.v(t.f("accept",c,p,0)));t.b("\" onChange=\"");t.b(t.v(t.f("onChange",c,p,0)));t.b("\" style=\"display: none;\" />");t.b("\n" + i);t.b("<label for=\"");t.b(t.v(t.f("uid",c,p,0)));t.b("\">");t.b(t.v(t.f("label",c,p,0)));t.b("</label>");t.b("\n" + i);});c.pop();}t.b("\n" + i);if(t.s(t.f("a",c,p,1),c,p,0,264,337,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<a href=\"#\" download=\"");t.b(t.v(t.f("download",c,p,0)));t.b("\" onClick=\"");t.b(t.v(t.f("onClick",c,p,0)));t.b("\">");t.b(t.v(t.f("label",c,p,0)));t.b("</a>");t.b("\n" + i);});c.pop();}return t.fl(); },partials: {}, subs: {  }}
 
 /***/ },
-/* 24 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Map = __webpack_require__(17).Map;
-	const List = __webpack_require__(17).List;
-	const erd = __webpack_require__(25)({
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Map = __webpack_require__(8).Map;
+	var List = __webpack_require__(8).List;
+	var erd = __webpack_require__(16)({
 	  strategy: "scroll" //<- For ultra performance.
 	});
 
-	const RendererInterface = __webpack_require__(38);
+	var RendererInterface = __webpack_require__(29);
 
-	class DomInterface extends RendererInterface {
-	  constructor(initialState = {}) {
-	    super();
+	var DomInterface = function (_RendererInterface) {
+	  _inherits(DomInterface, _RendererInterface);
 
-	    this.state = new Map(initialState);
+	  function DomInterface() {
+	    var initialState = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-	    this.observed = ['screen']; // Detect resize event
+	    _classCallCheck(this, DomInterface);
 
-	    this.refs = {};
-	    this.addEventListener('render', this._onrender);
+	    var _this = _possibleConstructorReturn(this, (DomInterface.__proto__ || Object.getPrototypeOf(DomInterface)).call(this));
 
-	    this.start();
+	    _this.state = new Map(initialState);
+
+	    _this.observed = ['screen']; // Detect resize event
+
+	    _this.refs = {};
+	    _this.addEventListener('render', _this._onrender);
+
+	    _this.start();
+	    return _this;
 	  }
 
-	  render() {
-	    // This is the simplest render implement.
-	    if (!this.template || !this.container) return;
-	    this.dispatchEvent(new Event('beforerender'));
-	    this.container.innerHTML =
-	      this.template.render(this.renderProps.toJS(), this.partial);
+	  _createClass(DomInterface, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
 
-	    if (!this.selectors) return;
-	    this.refs = new Map(this.selectors)
-	      .filter(item => typeof item === 'string')
-	      .map(item => this.container.querySelector(item))
-	      .toJS();
+	      // This is the simplest render implement.
+	      if (!this.template || !this.container) return;
+	      this.dispatchEvent(new Event('beforerender'));
+	      this.container.innerHTML = this.template.render(this.renderProps.toJS(), this.partial);
 
-	    this.dispatchEvent(new Event('render'));
-	  }
+	      if (!this.selectors) return;
+	      this.refs = new Map(this.selectors).filter(function (item) {
+	        return typeof item === 'string';
+	      }).map(function (item) {
+	        return _this2.container.querySelector(item);
+	      }).toJS();
 
-	  _onrender() {
-	    this.observed
-	    .map(key => ({ key, ref: this.refs[key] }))
-	    .forEach(item => {
-	      erd.listenTo(item.ref, () => this._dispatchResizeEvent(item.key));
-	    });
-	  }
+	      this.dispatchEvent(new Event('render'));
+	    }
+	  }, {
+	    key: '_onrender',
+	    value: function _onrender() {
+	      var _this3 = this;
 
-	  _dispatchResizeEvent(partial) {
-	    this.dispatchEvent(new Event(partial + '.resize'));
-	  }
+	      this.observed.map(function (key) {
+	        return { key: key, ref: _this3.refs[key] };
+	      }).forEach(function (item) {
+	        erd.listenTo(item.ref, function () {
+	          return _this3._dispatchResizeEvent(item.key);
+	        });
+	      });
+	    }
+	  }, {
+	    key: '_dispatchResizeEvent',
+	    value: function _dispatchResizeEvent(partial) {
+	      this.dispatchEvent(new Event(partial + '.resize'));
+	    }
+	  }, {
+	    key: 'container',
+	    get: function get() {
+	      return this.state.get('container');
+	    },
+	    set: function set(value) {
+	      this.state = this.state.set('container', value);
+	    }
+	  }, {
+	    key: 'renderProps',
+	    get: function get() {
+	      return this.state.get('renderProps', new Map());
+	    },
+	    set: function set(value) {
+	      this.state = this.state.set('renderProps', value);
+	    }
+	  }, {
+	    key: 'selectors',
+	    get: function get() {
+	      return this.state.get('selectors', {});
+	    },
+	    set: function set(value) {
+	      this.state = this.state.set('selectors', value);
+	    }
+	  }, {
+	    key: 'template',
+	    get: function get() {
+	      return this.state.get('template');
+	    },
+	    set: function set(value) {
+	      this.state = this.state.set('template', value);
+	    }
+	  }, {
+	    key: 'partial',
+	    get: function get() {
+	      return this.state.get('partial', {});
+	    },
+	    set: function set(value) {
+	      this.state = this.state.set('partial', value);
+	    }
+	  }, {
+	    key: 'menuButtons',
+	    get: function get() {
+	      return this.renderProps.get('menuButtons');
+	    },
+	    set: function set(value) {
+	      this.renderProps = this.renderProps.set('menuButtons', value);
+	    }
+	  }, {
+	    key: 'classNames',
+	    get: function get() {
+	      return this.renderProps.get('classNames');
+	    },
+	    set: function set(value) {
+	      this.renderProps = this.renderProps.set('classNames', value);
+	    }
+	  }]);
 
-	  get container() {
-	    return this.state.get('container');
-	  }
-
-	  set container(value) {
-	    this.state = this.state.set('container', value);
-	  }
-
-	  get renderProps() {
-	    return this.state.get('renderProps', new Map());
-	  }
-
-	  set renderProps(value) {
-	    this.state = this.state.set('renderProps', value);
-	  }
-
-	  get selectors() {
-	    return this.state.get('selectors', {});
-	  }
-
-	  set selectors(value) {
-	    this.state = this.state.set('selectors', value);
-	  }
-
-	  get template() {
-	    return this.state.get('template');
-	  }
-
-	  set template(value) {
-	    this.state = this.state.set('template', value);
-	  }
-
-	  get partial() {
-	    return this.state.get('partial', {});
-	  }
-
-	  set partial(value) {
-	    this.state = this.state.set('partial', value);
-	  }
-
-	  get menuButtons() {
-	    return this.renderProps.get('menuButtons');
-	  }
-
-	  set menuButtons(value) {
-	    this.renderProps = this.renderProps.set('menuButtons', value);
-	  }
-
-	  get classNames() {
-	    return this.renderProps.get('classNames');
-	  }
-
-	  set classNames(value) {
-	    this.renderProps = this.renderProps.set('classNames', value);
-	  }
-	}
+	  return DomInterface;
+	}(RendererInterface);
 
 	module.exports = DomInterface;
 
-
 /***/ },
-/* 25 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var forEach                 = __webpack_require__(26).forEach;
-	var elementUtilsMaker       = __webpack_require__(27);
-	var listenerHandlerMaker    = __webpack_require__(28);
-	var idGeneratorMaker        = __webpack_require__(29);
-	var idHandlerMaker          = __webpack_require__(30);
-	var reporterMaker           = __webpack_require__(31);
-	var browserDetector         = __webpack_require__(32);
-	var batchProcessorMaker     = __webpack_require__(33);
-	var stateHandler            = __webpack_require__(35);
+	var forEach                 = __webpack_require__(17).forEach;
+	var elementUtilsMaker       = __webpack_require__(18);
+	var listenerHandlerMaker    = __webpack_require__(19);
+	var idGeneratorMaker        = __webpack_require__(20);
+	var idHandlerMaker          = __webpack_require__(21);
+	var reporterMaker           = __webpack_require__(22);
+	var browserDetector         = __webpack_require__(23);
+	var batchProcessorMaker     = __webpack_require__(24);
+	var stateHandler            = __webpack_require__(26);
 
 	//Detection strategies.
-	var objectStrategyMaker     = __webpack_require__(36);
-	var scrollStrategyMaker     = __webpack_require__(37);
+	var objectStrategyMaker     = __webpack_require__(27);
+	var scrollStrategyMaker     = __webpack_require__(28);
 
 	function isCollection(obj) {
 	    return Array.isArray(obj) || obj.length !== undefined;
@@ -7652,7 +7446,7 @@
 
 
 /***/ },
-/* 26 */
+/* 17 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7677,7 +7471,7 @@
 
 
 /***/ },
-/* 27 */
+/* 18 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7735,7 +7529,7 @@
 
 
 /***/ },
-/* 28 */
+/* 19 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7795,7 +7589,7 @@
 
 
 /***/ },
-/* 29 */
+/* 20 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7819,7 +7613,7 @@
 
 
 /***/ },
-/* 30 */
+/* 21 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7872,7 +7666,7 @@
 
 
 /***/ },
-/* 31 */
+/* 22 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7920,7 +7714,7 @@
 	};
 
 /***/ },
-/* 32 */
+/* 23 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -7965,12 +7759,12 @@
 
 
 /***/ },
-/* 33 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var utils = __webpack_require__(34);
+	var utils = __webpack_require__(25);
 
 	module.exports = function batchProcessorMaker(options) {
 	    options             = options || {};
@@ -8109,7 +7903,7 @@
 
 
 /***/ },
-/* 34 */
+/* 25 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -8130,7 +7924,7 @@
 
 
 /***/ },
-/* 35 */
+/* 26 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -8158,7 +7952,7 @@
 
 
 /***/ },
-/* 36 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -8168,7 +7962,7 @@
 
 	"use strict";
 
-	var browserDetector = __webpack_require__(32);
+	var browserDetector = __webpack_require__(23);
 
 	module.exports = function(options) {
 	    options             = options || {};
@@ -8377,7 +8171,7 @@
 
 
 /***/ },
-/* 37 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -8387,7 +8181,7 @@
 
 	"use strict";
 
-	var forEach = __webpack_require__(26).forEach;
+	var forEach = __webpack_require__(17).forEach;
 
 	module.exports = function(options) {
 	    options             = options || {};
@@ -8998,39 +8792,60 @@
 
 
 /***/ },
-/* 38 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const EventTarget = __webpack_require__(39);
-	const raf = __webpack_require__(43);
+	'use strict';
 
-	class RendererInterface extends EventTarget {
-	  constructor() {
-	    super();
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	    this.state = null;
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var EventTarget = __webpack_require__(30);
+	var raf = __webpack_require__(34);
+
+	var RendererInterface = function (_EventTarget) {
+	  _inherits(RendererInterface, _EventTarget);
+
+	  function RendererInterface() {
+	    _classCallCheck(this, RendererInterface);
+
+	    var _this = _possibleConstructorReturn(this, (RendererInterface.__proto__ || Object.getPrototypeOf(RendererInterface)).call(this));
+
+	    _this.state = null;
 
 	    // Render if state changed
 	    var preventState = null;
-	    const renderIfNeeded = () => {
-	      if (preventState !== this.state) {
-	        this.render();
+	    var renderIfNeeded = function renderIfNeeded() {
+	      if (preventState !== _this.state) {
+	        _this.render();
 	      }
-	      preventState = this.state;
+	      preventState = _this.state;
 	      raf(renderIfNeeded);
 	    };
 
-	    this.start = () => raf(renderIfNeeded);
+	    _this.start = function () {
+	      return raf(renderIfNeeded);
+	    };
+	    return _this;
 	  }
 
-	  render() {}
-	}
+	  _createClass(RendererInterface, [{
+	    key: 'render',
+	    value: function render() {}
+	  }]);
+
+	  return RendererInterface;
+	}(EventTarget);
 
 	module.exports = RendererInterface;
 
-
 /***/ },
-/* 39 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9045,9 +8860,9 @@
 	// Requirements
 	//-----------------------------------------------------------------------------
 
-	var Commons = __webpack_require__(40);
-	var CustomEventTarget = __webpack_require__(41);
-	var EventWrapper = __webpack_require__(42);
+	var Commons = __webpack_require__(31);
+	var CustomEventTarget = __webpack_require__(32);
+	var EventWrapper = __webpack_require__(33);
 	var LISTENERS = Commons.LISTENERS;
 	var CAPTURE = Commons.CAPTURE;
 	var BUBBLE = Commons.BUBBLE;
@@ -9226,7 +9041,7 @@
 
 
 /***/ },
-/* 40 */
+/* 31 */
 /***/ function(module, exports) {
 
 	/**
@@ -9303,7 +9118,7 @@
 
 
 /***/ },
-/* 41 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9318,7 +9133,7 @@
 	// Requirements
 	//-----------------------------------------------------------------------------
 
-	var Commons = __webpack_require__(40);
+	var Commons = __webpack_require__(31);
 	var LISTENERS = Commons.LISTENERS;
 	var ATTRIBUTE = Commons.ATTRIBUTE;
 	var newNode = Commons.newNode;
@@ -9428,7 +9243,7 @@
 
 
 /***/ },
-/* 42 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9443,7 +9258,7 @@
 	// Requirements
 	//-----------------------------------------------------------------------------
 
-	var createUniqueKey = __webpack_require__(40).createUniqueKey;
+	var createUniqueKey = __webpack_require__(31).createUniqueKey;
 
 	//-----------------------------------------------------------------------------
 	// Constsnts
@@ -9575,10 +9390,10 @@
 
 
 /***/ },
-/* 43 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(44)
+	/* WEBPACK VAR INJECTION */(function(global) {var now = __webpack_require__(35)
 	  , root = typeof window === 'undefined' ? global : window
 	  , vendors = ['moz', 'webkit']
 	  , suffix = 'AnimationFrame'
@@ -9654,7 +9469,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 44 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {// Generated by CoffeeScript 1.7.1
@@ -9690,10 +9505,10 @@
 
 	}).call(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(45)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(36)))
 
 /***/ },
-/* 45 */
+/* 36 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -9879,16 +9694,16 @@
 
 
 /***/ },
-/* 46 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(47);
+	var content = __webpack_require__(38);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(11)(content, {});
+	var update = __webpack_require__(40)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -9905,10 +9720,10 @@
 	}
 
 /***/ },
-/* 47 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(10)();
+	exports = module.exports = __webpack_require__(39)();
 	// imports
 
 
@@ -9919,23 +9734,336 @@
 
 
 /***/ },
-/* 48 */
+/* 39 */
+/***/ function(module, exports) {
+
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	// css base code, injected by the css-loader
+	module.exports = function() {
+		var list = [];
+
+		// return the list of modules as css string
+		list.toString = function toString() {
+			var result = [];
+			for(var i = 0; i < this.length; i++) {
+				var item = this[i];
+				if(item[2]) {
+					result.push("@media " + item[2] + "{" + item[1] + "}");
+				} else {
+					result.push(item[1]);
+				}
+			}
+			return result.join("");
+		};
+
+		// import a list of modules into the list
+		list.i = function(modules, mediaQuery) {
+			if(typeof modules === "string")
+				modules = [[null, modules, ""]];
+			var alreadyImportedModules = {};
+			for(var i = 0; i < this.length; i++) {
+				var id = this[i][0];
+				if(typeof id === "number")
+					alreadyImportedModules[id] = true;
+			}
+			for(i = 0; i < modules.length; i++) {
+				var item = modules[i];
+				// skip already imported module
+				// this implementation is not 100% perfect for weird media query combinations
+				//  when a module is imported multiple times with different media queries.
+				//  I hope this will never occur (Hey this way we have smaller bundles)
+				if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+					if(mediaQuery && !item[2]) {
+						item[2] = mediaQuery;
+					} else if(mediaQuery) {
+						item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+					}
+					list.push(item);
+				}
+			}
+		};
+		return list;
+	};
+
+
+/***/ },
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const suffixes = {
+	/*
+		MIT License http://www.opensource.org/licenses/mit-license.php
+		Author Tobias Koppers @sokra
+	*/
+	var stylesInDom = {},
+		memoize = function(fn) {
+			var memo;
+			return function () {
+				if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+				return memo;
+			};
+		},
+		isOldIE = memoize(function() {
+			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+		}),
+		getHeadElement = memoize(function () {
+			return document.head || document.getElementsByTagName("head")[0];
+		}),
+		singletonElement = null,
+		singletonCounter = 0,
+		styleElementsInsertedAtTop = [];
+
+	module.exports = function(list, options) {
+		if(false) {
+			if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+		}
+
+		options = options || {};
+		// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+		// tags it will allow on a page
+		if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+		// By default, add <style> tags to the bottom of <head>.
+		if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+
+		var styles = listToStyles(list);
+		addStylesToDom(styles, options);
+
+		return function update(newList) {
+			var mayRemove = [];
+			for(var i = 0; i < styles.length; i++) {
+				var item = styles[i];
+				var domStyle = stylesInDom[item.id];
+				domStyle.refs--;
+				mayRemove.push(domStyle);
+			}
+			if(newList) {
+				var newStyles = listToStyles(newList);
+				addStylesToDom(newStyles, options);
+			}
+			for(var i = 0; i < mayRemove.length; i++) {
+				var domStyle = mayRemove[i];
+				if(domStyle.refs === 0) {
+					for(var j = 0; j < domStyle.parts.length; j++)
+						domStyle.parts[j]();
+					delete stylesInDom[domStyle.id];
+				}
+			}
+		};
+	}
+
+	function addStylesToDom(styles, options) {
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			if(domStyle) {
+				domStyle.refs++;
+				for(var j = 0; j < domStyle.parts.length; j++) {
+					domStyle.parts[j](item.parts[j]);
+				}
+				for(; j < item.parts.length; j++) {
+					domStyle.parts.push(addStyle(item.parts[j], options));
+				}
+			} else {
+				var parts = [];
+				for(var j = 0; j < item.parts.length; j++) {
+					parts.push(addStyle(item.parts[j], options));
+				}
+				stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+			}
+		}
+	}
+
+	function listToStyles(list) {
+		var styles = [];
+		var newStyles = {};
+		for(var i = 0; i < list.length; i++) {
+			var item = list[i];
+			var id = item[0];
+			var css = item[1];
+			var media = item[2];
+			var sourceMap = item[3];
+			var part = {css: css, media: media, sourceMap: sourceMap};
+			if(!newStyles[id])
+				styles.push(newStyles[id] = {id: id, parts: [part]});
+			else
+				newStyles[id].parts.push(part);
+		}
+		return styles;
+	}
+
+	function insertStyleElement(options, styleElement) {
+		var head = getHeadElement();
+		var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+		if (options.insertAt === "top") {
+			if(!lastStyleElementInsertedAtTop) {
+				head.insertBefore(styleElement, head.firstChild);
+			} else if(lastStyleElementInsertedAtTop.nextSibling) {
+				head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+			} else {
+				head.appendChild(styleElement);
+			}
+			styleElementsInsertedAtTop.push(styleElement);
+		} else if (options.insertAt === "bottom") {
+			head.appendChild(styleElement);
+		} else {
+			throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+		}
+	}
+
+	function removeStyleElement(styleElement) {
+		styleElement.parentNode.removeChild(styleElement);
+		var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+		if(idx >= 0) {
+			styleElementsInsertedAtTop.splice(idx, 1);
+		}
+	}
+
+	function createStyleElement(options) {
+		var styleElement = document.createElement("style");
+		styleElement.type = "text/css";
+		insertStyleElement(options, styleElement);
+		return styleElement;
+	}
+
+	function createLinkElement(options) {
+		var linkElement = document.createElement("link");
+		linkElement.rel = "stylesheet";
+		insertStyleElement(options, linkElement);
+		return linkElement;
+	}
+
+	function addStyle(obj, options) {
+		var styleElement, update, remove;
+
+		if (options.singleton) {
+			var styleIndex = singletonCounter++;
+			styleElement = singletonElement || (singletonElement = createStyleElement(options));
+			update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+			remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+		} else if(obj.sourceMap &&
+			typeof URL === "function" &&
+			typeof URL.createObjectURL === "function" &&
+			typeof URL.revokeObjectURL === "function" &&
+			typeof Blob === "function" &&
+			typeof btoa === "function") {
+			styleElement = createLinkElement(options);
+			update = updateLink.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+				if(styleElement.href)
+					URL.revokeObjectURL(styleElement.href);
+			};
+		} else {
+			styleElement = createStyleElement(options);
+			update = applyToTag.bind(null, styleElement);
+			remove = function() {
+				removeStyleElement(styleElement);
+			};
+		}
+
+		update(obj);
+
+		return function updateStyle(newObj) {
+			if(newObj) {
+				if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+					return;
+				update(obj = newObj);
+			} else {
+				remove();
+			}
+		};
+	}
+
+	var replaceText = (function () {
+		var textStore = [];
+
+		return function (index, replacement) {
+			textStore[index] = replacement;
+			return textStore.filter(Boolean).join('\n');
+		};
+	})();
+
+	function applyToSingletonTag(styleElement, index, remove, obj) {
+		var css = remove ? "" : obj.css;
+
+		if (styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = replaceText(index, css);
+		} else {
+			var cssNode = document.createTextNode(css);
+			var childNodes = styleElement.childNodes;
+			if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+			if (childNodes.length) {
+				styleElement.insertBefore(cssNode, childNodes[index]);
+			} else {
+				styleElement.appendChild(cssNode);
+			}
+		}
+	}
+
+	function applyToTag(styleElement, obj) {
+		var css = obj.css;
+		var media = obj.media;
+
+		if(media) {
+			styleElement.setAttribute("media", media)
+		}
+
+		if(styleElement.styleSheet) {
+			styleElement.styleSheet.cssText = css;
+		} else {
+			while(styleElement.firstChild) {
+				styleElement.removeChild(styleElement.firstChild);
+			}
+			styleElement.appendChild(document.createTextNode(css));
+		}
+	}
+
+	function updateLink(linkElement, obj) {
+		var css = obj.css;
+		var sourceMap = obj.sourceMap;
+
+		if(sourceMap) {
+			// http://stackoverflow.com/a/26603875
+			css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+		}
+
+		var blob = new Blob([css], { type: "text/css" });
+
+		var oldSrc = linkElement.href;
+
+		linkElement.href = URL.createObjectURL(blob);
+
+		if(oldSrc)
+			URL.revokeObjectURL(oldSrc);
+	}
+
+
+/***/ },
+/* 41 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var suffixes = {
 	  container: 'container',
 	  wrapper: 'wrapper',
 	  screen: 'screen',
-	  menuButtons: 'menu_buttons',
+	  menuButtons: 'menu_buttons'
 	};
 
-	const selectors = {};
-	Object.keys(suffixes).forEach(key => selectors[key] = '.' + ("h4p__") + suffixes[key]);
+	var selectors = {};
+	Object.keys(suffixes).forEach(function (key) {
+	  return selectors[key] = '.' + ("h4p__") + suffixes[key];
+	});
 	selectors.htmlClass = {};
-	Object.keys(suffixes).forEach(key => selectors.htmlClass[key] = ("h4p__") + suffixes[key]);
+	Object.keys(suffixes).forEach(function (key) {
+	  return selectors.htmlClass[key] = ("h4p__") + suffixes[key];
+	});
 
 	module.exports = selectors;
-
 
 /***/ }
 /******/ ]);

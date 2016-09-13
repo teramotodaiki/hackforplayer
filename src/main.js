@@ -1,6 +1,5 @@
 const Player = require('./Player');
 const stayBottom = require('./stayBottom');
-const coverAll = require('./coverAll');
 const Element = require('./createElementWithEvent');
 const partial = require('../templates/');
 const DomInterface = require('./DomInterface');

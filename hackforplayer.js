@@ -239,9 +239,8 @@
 
 	    _this.lastModels = {};
 	    _this.urls = {
-	      // screen: 'https://embed.hackforplay.xyz/open-source/game/alpha1.2.html'
-	      screen: 'http://localhost:3000/game.html',
-	      editor: 'http://localhost:3001/editor.html'
+	      screen: 'https://embed.hackforplay.xyz/open-source/screen/alpha-1.html',
+	      editor: 'https://embed.hackforplay.xyz/open-source/editor/alpha-1.html'
 	    };
 	    _this.promises = {};
 	    _this.refs = {};

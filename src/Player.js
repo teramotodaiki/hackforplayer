@@ -12,25 +12,30 @@ class Player extends EventEmitter2 {
       // screen: 'https://embed.hackforplay.xyz/open-source/game/alpha1.2.html'
       screen: 'http://localhost:3000/game.html'
     };
+    this.promises = {};
 
-    this.on('beforeunload', (event) => event.child.destroy());
   }
 
   start(namespace, model) {
-    this._start();
-    this.lastModels[namespace] = model;
-    return new Postmate({
-      container: document.body,
-      url: this.urls[namespace],
-      model
-    })
-    .then(child => {
-      this._start = () => this.emit('beforeunload', {child});
-      this.emit('load', {child});
-      return child;
-    });
+    const prevent = this.promises[namespace] || Promise.resolve();
+    this.promises[namespace] =
+    prevent
+      .then(() => {
+        this.emit(namespace + '.beforeunload'); // call beforeunload
+        this.lastModels[namespace] = model;
+        return new Postmate({
+          container: document.body,
+          url: this.urls[namespace],
+          model
+        });
+      })
+      .then(child => {
+        this.once(namespace + '.beforeunload', () => child.destroy()); // set beforeunload
+        this.emit(namespace + '.load', {child});
+        return child;
+      });
+    return this.promises[namespace];
   }
-  _start() {}
 
   restart(namespace, modelUpdated = {}) {
     return this.start(namespace, Object.assign({}, this.lastModels[namespace], modelUpdated));

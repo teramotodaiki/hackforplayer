@@ -2,7 +2,7 @@ const EventEmitter2 = require('eventemitter2');
 const Postmate = require('postmate/build/postmate.min');
 Postmate.debug = true;
 
-const getContainer = require('./getContainer');
+const getFrameContainer = require('./getFrameContainer');
 
 class Player extends EventEmitter2 {
 
@@ -28,7 +28,7 @@ class Player extends EventEmitter2 {
         this.emit(namespace + '.beforeunload'); // call beforeunload
         this.lastModels[namespace] = model;
         return new Postmate({
-          container: getContainer(),
+          container: getFrameContainer(),
           url: this.urls[namespace],
           model
         });

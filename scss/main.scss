@@ -1,38 +1,3 @@
 iframe {
   visibility: hidden;
 }
-
-// dock
-$direction: (top: column-reverse, right: row, bottom: column, left: row-reverse);
-@each $align, $flex-direction in $direction {
-  .dock-#{$align} {
-    position: fixed;
-    display: flex;
-    flex: 1 1 auto;
-    justify-content: stretch;
-    flex-direction: $flex-direction;
-    z-index: 1;
-    @if $align == 'top' or $align == 'bottom' {
-      .dock__sizer {
-        width: 100%;
-        height: 3px;
-      }
-    } @else {
-      .dock__sizer {
-        width: 3px;
-        height: 100%;
-      }
-    }
-    @if $align == 'top' or $align == 'left' {
-      top: 0;
-      left: 0;
-    } @else {
-      right: 0;
-      bottom: 0;
-    }
-  }
-}
-
-.dock__sizer {
-  cursor: move;
-}

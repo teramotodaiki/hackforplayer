@@ -73,7 +73,7 @@ const init = (namespace, model) => {
         const file = event.target.files[0];
         const reader = new FileReader();
         reader.onload = ({target:{result}}) => {
-          player.restart({ files: [{ name: file.name, code: result }] });
+          player.restart('screen', { files: [{ name: file.name, code: result }] });
           editor.setValue(result);
           event.target.value = ''; // Can upload same file
         };
@@ -82,13 +82,13 @@ const init = (namespace, model) => {
 
       dom.menuButtons = [
         Element({ label: 'HACK', onClick: toggleDock }),
-        Element({ label: 'RELOAD', onClick: () => player.restart() }),
+        Element({ label: 'RELOAD', onClick: () => player.restart('screen') }),
         Element({ label: 'OPEN', input: {type: 'file', accept: 'text/javascript'}, onChange: fileOpen })
       ];
 
       const run = () => {
         const code = editor.getValue();
-        player.restart({ files: [{ name: 'main', code }] });
+        player.restart('screen', { files: [{ name: 'main', code }] });
       };
       const alignDock = (align) =>
         () => dom.dock = Object.assign({}, dom.dock, {
@@ -140,7 +140,9 @@ const init = (namespace, model) => {
           code
         }]
       }, model || {});
-      player.start(model);
+
+      player.start('screen', model)
+
       player.addEventListener('load', ({child}) => {
         initPosition(child.frame);
         child.frame.style.position = 'absolute';

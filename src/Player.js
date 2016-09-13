@@ -8,12 +8,14 @@ class Player extends EventTarget {
     super();
 
     this.src = src;
+    this.lastModels = {};
 
     this.addEventListener('beforeunload', (event) => event.child.destroy());
   }
 
-  start(model) {
+  start(namespace, model) {
     this._start();
+    this.lastModels[namespace] = model;
     return new Postmate({
       container: document.body,
       url: this.src,
@@ -21,7 +23,6 @@ class Player extends EventTarget {
     })
     .then(child => {
       this._start = () => this.dispatchBeforeUnloadEvent({child});
-      this.restart = (modelUpdated) => this.start(Object.assign({}, model, modelUpdated));
       child.get('size')
         .then(data => this.dispatchResizeEvent({data, child}));
       child.on('resize', (data) => this.dispatchResizeEvent({data, child}));
@@ -31,7 +32,10 @@ class Player extends EventTarget {
     });
   }
   _start() {}
-  restart() {}
+
+  restart(namespace, modelUpdated = {}) {
+    return this.start(namespace, Object.assign({}, this.lastModels[namespace], modelUpdated));
+  }
 
   dispatchResizeEvent({data, child}) {
     const event = new Event('resize');

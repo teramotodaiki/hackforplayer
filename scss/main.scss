@@ -1,3 +1,6 @@
-iframe {
-  visibility: hidden;
+
+.#{$prefix}frame_container {
+  iframe {
+    visibility: hidden;
+  }
 }

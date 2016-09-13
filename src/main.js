@@ -9,8 +9,8 @@ const DomInterface = require('./DomInterface');
 
 require('../scss/main.scss');
 
-const init = (namespace, models = {}) => {
-  const selectors = require('./selectors')(namespace);
+const init = (models = {}) => {
+  const selectors = require('./selectors');
   const containers = document.querySelectorAll(selectors.container);
 
   const players =
@@ -164,8 +164,8 @@ const init = (namespace, models = {}) => {
 
   return players;
 };
-// export global
-window.h4p = (...args) =>
+
+const h4p = (...args) =>
   new Promise((resolve, reject) => {
     document.readyState === 'complete' ?
       resolve(init(...args)) :
@@ -175,4 +175,7 @@ window.h4p = (...args) =>
   });
 
 h4p.Player = Player;
-h4p.trigger = require('./keyEvent')('h4p').trigger;
+h4p.trigger = require('./keyEvent')(EXPORT_VAR_NAME).trigger;
+
+// export global
+window[EXPORT_VAR_NAME] = h4p;

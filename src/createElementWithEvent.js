@@ -1,4 +1,4 @@
-const on = require('./keyEvent')('h4p').on;
+const on = require('./keyEvent')(EXPORT_VAR_NAME).on;
 const Map = require('immutable').Map;
 
 module.exports = (props) =>

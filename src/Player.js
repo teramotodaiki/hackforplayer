@@ -2,8 +2,6 @@ const EventTarget = require('event-target-shim');
 const Postmate = require('postmate/build/postmate.min');
 Postmate.debug = true;
 
-const initPosition = require('./initPosition');
-
 class Player extends EventTarget {
 
   constructor({src} = {}) {
@@ -24,8 +22,6 @@ class Player extends EventTarget {
     .then(child => {
       this._start = () => this.dispatchBeforeUnloadEvent({child});
       this.restart = (modelUpdated) => this.start(Object.assign({}, model, modelUpdated));
-      initPosition(child.frame);
-      child.frame.style.position = 'absolute';
       child.get('size')
         .then(data => this.dispatchResizeEvent({data, child}));
       child.on('resize', (data) => this.dispatchResizeEvent({data, child}));

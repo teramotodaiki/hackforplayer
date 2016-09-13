@@ -4,6 +4,7 @@ const stayBottom = require('./stayBottom');
 const coverAll = require('./coverAll');
 const Element = require('./createElementWithEvent');
 const partial = require('../templates/');
+const initPosition = require('./initPosition');
 
 const erd = require('element-resize-detector')({
   strategy: "scroll" //<- For ultra performance.
@@ -140,6 +141,10 @@ const init = (namespace, model) => {
         }]
       }, model || {});
       player.start(model);
+      player.addEventListener('load', ({child}) => {
+        initPosition(child.frame);
+        child.frame.style.position = 'absolute';
+      });
 
       return player;
     });

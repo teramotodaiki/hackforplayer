@@ -55,9 +55,10 @@ const init = (namespace, models = {}) => {
       };
 
       const toggleDock = () => {
-        const current = dom.dock.visibility;
-        const visibility = current === 'visible' ? 'hidden' : 'visible';
-        dom.dock = Object.assign({}, dom.dock, {visibility});
+        const editor = player.refs.editor;
+        if (!editor) return;
+        const style = editor.frame.getCurrentStyle || getComputedStyle(editor.frame);
+        editor.frame.style.visibility = style.visibility === 'hidden' ? 'visible' : 'hidden';
       };
 
       const fileOpen = (event) => {
@@ -178,8 +179,6 @@ const init = (namespace, models = {}) => {
           child.get('view').then((view) => alignment({child}, view));
           player.once('editor.beforeunload', () => removeEventListener('resize', task));
         });
-        child.frame.style.visibility = 'visible';
-        child.frame.style.display = 'block';
         child.frame.style.position = 'fixed';
         child.frame.style['z-index'] = 1;
         child.frame.style.border = '0 none';

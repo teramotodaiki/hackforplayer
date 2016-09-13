@@ -19,9 +19,6 @@ const init = (namespace, models = {}) => {
       // An instance of h4p.Player
       const player = new Player();
 
-      // An editor instance as a singleton
-      const editor = makeEditor();
-
       // DOM renderer interface
       const dom = new DomInterface({
         container,
@@ -79,53 +76,13 @@ const init = (namespace, models = {}) => {
         Element({ label: 'OPEN', input: {type: 'file', accept: 'text/javascript'}, onChange: fileOpen })
       ];
 
-      const run = () => {
-        const code = editor.getValue();
-        player.restart('screen', { files: [{ name: 'main', code }] });
-      };
-      const alignDock = (align) =>
-        () => dom.dock = Object.assign({}, dom.dock, {
-          align,
-          width: align === 'top' || align === 'bottom' ? '100vw' : '50vw',
-          height: align === 'left' || align === 'right' ? '100vh' : '50vh'
-        });
-      const fileSave = (event) => {
-        const code = editor.getValue();
-        event.target.href = URL.createObjectURL(new Blob([code]));
-      };
-      const fileLoad = (event) => {
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = ({target:{result}}) => {
-          editor.setValue(result);
-          event.target.value = ''; // Can upload same file
-        };
-        reader.readAsText(file);
-      };
-      dom.editorButtons = [
-        Element({ label: 'RUN', onClick: run }),
-        Element({ label: 'SAVE', a: {download: 'main.js'}, onClick: fileSave }),
-        Element({ label: 'LOAD', input: {type: 'file', accept: 'text/javascript'}, onChange: fileLoad }),
-        Element({ label: 'L', onClick: alignDock('left') }),
-        Element({ label: 'T', onClick: alignDock('top') }),
-        Element({ label: 'B', onClick: alignDock('bottom') }),
-        Element({ label: 'R', onClick: alignDock('right') }),
-        Element({ label: 'HIDE', onClick: toggleDock })
-      ];
-      editor.setOption('extraKeys', {
-  			'Ctrl-Enter': run
-      });
-
       // Inline script
       const query = container.getAttribute('data-target');
       const code = query && document.querySelector(query).textContent;
 
-      editor.setValue(code.replace(/\n    /g, '\n').substr(1));
-
       const resizeTask = stayBottom(dom);
       dom.addEventListener('screen.resize', resizeTask);
       player.on('screen.resize', resizeTask);
-      dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
       player.on('screen.load', ({child}) => {
         const frame = child.frame;

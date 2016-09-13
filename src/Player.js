@@ -16,6 +16,7 @@ class Player extends EventEmitter2 {
       editor: 'http://localhost:3001/editor.html'
     };
     this.promises = {};
+    this.refs = {};
 
   }
 
@@ -34,6 +35,7 @@ class Player extends EventEmitter2 {
       })
       .then(child => {
         this.once(namespace + '.beforeunload', () => child.destroy()); // set beforeunload
+        this.refs[namespace] = child;
         this.emit(namespace + '.load', {child});
         return child;
       });

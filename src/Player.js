@@ -1,112 +1,73 @@
-const EventTarget = require('event-target-shim');
+const EventEmitter2 = require('eventemitter2');
 const Postmate = require('postmate/build/postmate.min');
 Postmate.debug = true;
 
-const initPosition = require('./initPosition');
+const getFrameContainer = require('./getFrameContainer');
 
-class Player extends EventTarget {
+class Player extends EventEmitter2 {
 
-  constructor({src} = {}) {
+  constructor() {
     super();
 
-    this.src = src;
-
-    var width = 300, height = 150;
-    this.getContentSize = () => ({ width, height });
-    this.addEventListener('resize', () => {
-      width = event.data.width;
-      height = event.data.height;
-    });
-
-    // cannot access port directly
-    var port = null;
-    this.setPort = (value) => {
-      port = this._setPort(value, port);
+    this.lastModels = {};
+    this.urls = {
+      screen: 'https://embed.hackforplay.xyz/open-source/screen/alpha-1.html',
+      editor: 'https://embed.hackforplay.xyz/open-source/editor/alpha-1.html'
     };
+    this.promises = {};
+    this.refs = {};
 
-    this.addEventListener('beforeunload', (event) => event.child.destroy());
   }
 
-  start(files) {
-    this._start();
-    return new Postmate({
-      container: document.body,
-      url: this.src,
-      model: {files}
-    })
-    .then(child => {
-      this._start = () => this.dispatchBeforeUnloadEvent({child});
-      this.restart = () => this.start(files);
-      initPosition(child.frame);
-      child.frame.style.position = 'absolute';
-      child.get('size')
-        .then(data => this.dispatchResizeEvent({data, child}));
-      child.on('resize', (data) => this.dispatchResizeEvent({data, child}));
-
-      return child;
-    });
-  }
-  _start() {}
-  restart() {}
-
-  dispatchResizeEvent({data, child}) {
-    const event = new Event('resize');
-    event.frame = child.frame;
-    event.width = data.width;
-    event.height = data.height;
-    this.dispatchEvent(event);
-  }
-
-  dispatchBeforeUnloadEvent({child}) {
-    const event = new Event('beforeunload');
-    event.child = child;
-    this.dispatchEvent(event);
-  }
-
-  standBy(contentWindow) {
-    return new Promise((resolve, reject) => {
-      addEventListener('message', function task(event) {
-        if (event.source !== contentWindow) return;
-        removeEventListener('message', task);
-        resolve(event);
+  start(namespace, model) {
+    const prevent = this.promises[namespace] || Promise.resolve();
+    this.promises[namespace] =
+    prevent
+      .then(() => {
+        this.emit(namespace + '.beforeunload'); // call beforeunload
+        this.lastModels[namespace] = model;
+        return new Postmate({
+          container: getFrameContainer(),
+          url: this.urls[namespace],
+          model
+        });
+      })
+      .then(child => {
+        this.once(namespace + '.beforeunload', () => child.destroy()); // set beforeunload
+        child.frame.classList.add(CSS_PREFIX + 'frame_' + namespace);
+        this.refs[namespace] = child;
+        this.emit(namespace + '.load', {child});
+        return child;
       });
-    });
+    return this.promises[namespace];
   }
 
-  connect(contentWindow) {
-    return new Promise((resolve, reject) => {
-
-      // TODO: Request to reload if connected
-
-      this.standBy(contentWindow)
-      .then((event) => {
-        this.setPort(event.ports[0]);
-        resolve();
-      });
-    });
+  restart(namespace, modelUpdated = {}) {
+    return this.start(namespace, Object.assign({}, this.lastModels[namespace], modelUpdated));
   }
 
-  postMessage() {
-    throw new Error('Missing a port. It has not connected yet.');
+  show(namespace) { this.classListOperation(namespace, 'add', 'show'); }
+  hide(namespace) { this.classListOperation(namespace, 'remove', 'show'); }
+  toggle(namespace) { this.classListOperation(namespace, 'toggle', 'show'); }
+
+  classListOperation(namespace, method, state) {
+    const child = this.refs[namespace];
+    if (!child) return;
+    child.frame.classList[method](CSS_PREFIX + 'frame-' + state);
   }
 
-  _setPort(next, current) {
-    if (current) {
-      current.onmessage = null;
-    }
-    next.onmessage = (event) => {
-      this.dispatchEvent(event);
-      if (event.data.method) {
-        const partialEvent = new Event(event.data.method + '.message');
-        partialEvent.data = event.data;
-        this.dispatchEvent(partialEvent);
-      }
-    };
-    this.postMessage = (...args) => {
-      next.postMessage(...args);
-    };
-    return next;
+  setRect(namespace, left, top, width, height) {
+    const child = this.refs[namespace];
+    if (!child) return;
+    const ref = child.frame.style;
+    ref.left = unit(left);
+    ref.top = unit(top);
+    ref.width = unit(width);
+    ref.height = unit(height);
   }
+
 }
+
+const unit = (value) => value + (typeof value === 'number' ? 'px' : '');
 
 module.exports = Player;

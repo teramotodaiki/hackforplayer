@@ -1,38 +1,31 @@
-iframe {
-  visibility: hidden;
-}
 
-// dock
-$direction: (top: column-reverse, right: row, bottom: column, left: row-reverse);
-@each $align, $flex-direction in $direction {
-  .dock-#{$align} {
-    position: fixed;
-    display: flex;
-    flex: 1 1 auto;
-    justify-content: stretch;
-    flex-direction: $flex-direction;
-    z-index: 1;
-    @if $align == 'top' or $align == 'bottom' {
-      .dock__sizer {
-        width: 100%;
-        height: 3px;
-      }
-    } @else {
-      .dock__sizer {
-        width: 3px;
-        height: 100%;
-      }
+.#{$prefix}frame_container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  padding: 0px;
+  margin: 0px;
+
+  iframe {
+    display: none;
+    border: 0 none;
+    margin: 0px;
+    padding: 0px;
+
+    &.#{$prefix}frame-show {
+      display: block;
     }
-    @if $align == 'top' or $align == 'left' {
-      top: 0;
-      left: 0;
-    } @else {
-      right: 0;
-      bottom: 0;
+
+    &.#{$prefix}frame_screen {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+
+    &.#{$prefix}frame_editor {
+      position: fixed;
+      box-shadow: rgba(0, 0, 0, 0.156863) 0px 3px 10px, rgba(0, 0, 0, 0.227451) 0px 3px 10px;
     }
   }
-}
 
-.dock__sizer {
-  cursor: move;
 }

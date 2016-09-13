@@ -15,7 +15,7 @@ const DomInterface = require('./DomInterface');
 
 require('../scss/main.scss');
 
-const init = (namespace, model) => {
+const init = (namespace, models = {}) => {
   const selectors = require('./selectors')(namespace);
   const containers = document.querySelectorAll(selectors.container);
 
@@ -141,14 +141,13 @@ const init = (namespace, model) => {
         child.on('resize', resized);
       });
 
-      model = Object.assign({
-        files: [{
-          name: 'main',
-          code
-        }]
-      }, model || {});
+      // Default
+      const files = [{
+        name: 'main',
+        code
+      }];
 
-      player.start('screen', model)
+      player.start('screen', Object.assign({}, {files}, models.screen));
 
       return player;
     });

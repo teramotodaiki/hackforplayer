@@ -131,6 +131,16 @@ const init = (namespace, model) => {
       player.on('resize', resizeTask);
       dom.addEventListener('editor.resize', coverAll({dom, editor, element: editor.display.wrapper}));
 
+      player.on('load', ({child}) => {
+        const frame = child.frame;
+        initPosition(frame);
+        frame.style.position = 'absolute';
+
+        const resized = ({width, height}) => player.emit('resize', {frame, width, height});
+        child.get('size').then(resized);
+        child.on('resize', resized);
+      });
+      
       model = Object.assign({
         files: [{
           name: 'main',
@@ -139,11 +149,6 @@ const init = (namespace, model) => {
       }, model || {});
 
       player.start('screen', model)
-
-      player.on('load', ({child}) => {
-        initPosition(child.frame);
-        child.frame.style.position = 'absolute';
-      });
 
       return player;
     });

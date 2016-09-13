@@ -25,12 +25,7 @@ class Player extends EventEmitter2 {
       model
     })
     .then(child => {
-      const frame = child.frame;
       this._start = () => this.emit('beforeunload', {child});
-      child.get('size')
-        .then(({width, height}) => this.emit('resize', {frame, width, height}));
-      child.on('resize', ({width, height}) => this.emit('resize', {frame, width, height}));
-
       this.emit('load', {child});
       return child;
     });
@@ -40,7 +35,7 @@ class Player extends EventEmitter2 {
   restart(namespace, modelUpdated = {}) {
     return this.start(namespace, Object.assign({}, this.lastModels[namespace], modelUpdated));
   }
-  
+
 }
 
 module.exports = Player;

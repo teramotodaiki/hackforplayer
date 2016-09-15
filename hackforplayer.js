@@ -239,7 +239,7 @@
 
 	    _this.lastModels = {};
 	    _this.urls = {
-	      screen: 'https://embed.hackforplay.xyz/open-source/screen/alpha-1.html',
+	      screen: 'https://embed.hackforplay.xyz/open-source/screen/alpha-2.html',
 	      editor: 'https://embed.hackforplay.xyz/open-source/editor/alpha-1.html'
 	    };
 	    _this.promises = {};
@@ -1099,31 +1099,21 @@
 	function resizeHandler(dom, frame, width, height) {
 	  if (!dom.refs.screen || !frame) return;
 	  var screenRect = dom.refs.screen.getBoundingClientRect();
-	  var frameStyle = getComputedStyle(frame);
-	  var offset = {
-	    x: frameStyle.position === 'absolute' ? pageXOffset : 0,
-	    y: frameStyle.position === 'absolute' ? pageYOffset : 0
+
+	  frame.width = width;
+	  frame.height = height;
+
+	  var translate = {
+	    x: screenRect.left + screenRect.width / 2 - width / 2 + pageXOffset,
+	    y: screenRect.top + screenRect.height / 2 - height / 2 + pageYOffset
 	  };
-	  var contentSize = { width: width, height: height };
 
 	  var ratio = function ratio(size) {
 	    return Math.max(size.height, 1) / Math.max(size.width, 1);
 	  };
-	  if (ratio(screenRect) > ratio(contentSize)) {
-	    frame.width = screenRect.width;
-	    frame.height = screenRect.width * ratio(contentSize);
-	    frame.style.width = screenRect.width + 'px';
-	    frame.style.height = screenRect.width * ratio(contentSize) + 'px';
-	    frame.style.left = screenRect.left + offset.x + 'px';
-	    frame.style.top = screenRect.top + (screenRect.height - frame.height) + offset.y + 'px';
-	  } else {
-	    frame.width = screenRect.height / ratio(contentSize);
-	    frame.height = screenRect.height;
-	    frame.style.width = screenRect.height / ratio(contentSize) + 'px';
-	    frame.style.height = screenRect.height + 'px';
-	    frame.style.left = screenRect.left + (screenRect.width - frame.width) / 2 + offset.x + 'px';
-	    frame.style.top = screenRect.top + offset.y + 'px';
-	  }
+	  var scale = ratio(screenRect) > ratio({ width: width, height: height }) ? screenRect.width / width : screenRect.height / height;
+
+	  frame.style.transform = 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')';
 	};
 
 /***/ },

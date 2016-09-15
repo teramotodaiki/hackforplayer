@@ -20,9 +20,8 @@
 
     new p5();
     pixelDensity(1);
-
     resizeCanvas(720, 400);
-    Hack.setCanvas(canvas);
+    Hack.view = canvas;
 
     window.draw = draw;
     window.mousePressed = mousePressed;

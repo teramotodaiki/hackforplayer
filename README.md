@@ -53,6 +53,13 @@ In the frame, you can use require.js
 It provides that **just local scope** can work javascript.
 See more:
 
-https://github.com/teramotodaiki/hackforplay-embed
-https://github.com/teramotodaiki/hackforplay-editor
+- https://github.com/teramotodaiki/hackforplay-embed
+- https://github.com/teramotodaiki/hackforplay-editor
+
+
+## Index of contents
+
+https://teramotodaiki.github.io/open-index/
+
+(in preparation)
 

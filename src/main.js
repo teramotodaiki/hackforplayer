@@ -3,6 +3,7 @@ const stayBottom = require('./stayBottom');
 const Element = require('./createElementWithEvent');
 const partial = require('../templates/');
 const DomInterface = require('./DomInterface');
+require('whatwg-fetch');
 
 require('../scss/main.scss');
 

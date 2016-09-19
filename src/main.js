@@ -45,10 +45,6 @@ const init = (models = {}) => {
         Element({ label: 'OPEN', input: {type: 'file', accept: 'text/javascript'}, onChange: fileOpen })
       ];
 
-      // Inline script
-      const query = container.getAttribute('data-target');
-      const code = query && document.querySelector(query).textContent;
-
       const resizeTask = stayBottom(dom);
       dom.addEventListener('screen.resize', resizeTask);
       player.on('screen.resize', resizeTask);
@@ -97,22 +93,52 @@ const init = (models = {}) => {
 
 
       // Default
-      const files = [{
-        alias: 'main',
-        filename: 'main.js',
-        code,
-        isEntryPoint: true
-      }];
-      const view = {
-        align: 'right',
-        edge: {
-          x: innerWidth / 2,
-          y: innerHeight / 2
-        }
-      };
+      const elements = [].slice.call(
+        document.querySelectorAll(container.getAttribute('data-target'))
+      );
 
-      player.start('screen', Object.assign({}, {files}, models.screen));
-      player.start('editor', Object.assign({}, {files}, view, models.editor));
+      const mainModuleName = container.getAttribute('data-main');
+      const indent = (code) => {
+        code = code.replace(/^\n*/g, '');
+        const spaces = /^\s*/.exec(code)[0];
+        if (spaces) {
+          code = code
+            .split('\n')
+            .map(s => s.indexOf(spaces) ? s :  s.substr(spaces.length))
+            .join('\n');
+        }
+        return code;
+      };
+      Promise.all(
+        elements.map((element) => {
+          const alias = element.getAttribute('alias');
+          const filename = alias + '.js';
+          const isEntryPoint = mainModuleName === alias;
+          const src = element.getAttribute('src');
+
+          return src ?
+            fetch(src)
+              .then((response) => response.text())
+              .then((code) => ({ alias, filename, isEntryPoint, code })) :
+            Promise.resolve({
+              alias, filename, isEntryPoint,
+              code: indent(element.textContent)
+            });
+        })
+      ).then((files) => {
+
+        const view = {
+          align: 'right',
+          edge: {
+            x: innerWidth / 2,
+            y: innerHeight / 2
+          }
+        };
+
+        player.start('screen', Object.assign({}, {files}, models.screen));
+        player.start('editor', Object.assign({}, {files}, view, models.editor));
+
+      });
 
       return player;
     });

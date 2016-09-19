@@ -35,6 +35,9 @@ module.exports = {
   ],
   sassLoader: {
     data: `$prefix: ${cssPrefix};`
+  },
+  devServer: {
+    contentBase: ''
   }
 
 };

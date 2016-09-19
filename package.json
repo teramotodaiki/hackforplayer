@@ -4,7 +4,8 @@
   "description": "A player for hackforplay-embed in any website.",
   "main": "hackforplayer.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack-dev-server --inline",
+    "build": "NODE_ENV='production' webpack -p"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "sass-loader": "^4.0.1",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.1",
     "webpack-notifier": "^1.4.1"
   },
   "dependencies": {

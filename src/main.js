@@ -7,7 +7,7 @@ require('whatwg-fetch');
 
 require('../scss/main.scss');
 
-const init = (models = {}) => {
+const init = ({ urls = {}, models = {} } = {}) => {
   const selectors = require('./selectors');
   const containers = document.querySelectorAll(selectors.container);
 
@@ -16,6 +16,7 @@ const init = (models = {}) => {
     .map(container => {
       // An instance of h4p.Player
       const player = new Player();
+      player.urls = Object.assign({}, player.urls, urls);
 
       // DOM renderer interface
       const dom = new DomInterface({

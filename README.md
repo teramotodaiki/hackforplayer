@@ -10,7 +10,7 @@ https://trello.com/b/gxWQpAnW/opensource-hackforplay
 ## Example
 
 1. Visit https://teramotodaiki.github.io/hackforplayer/
- 
+
 or
 
 1. Clone this repo (or download zip)
@@ -20,32 +20,41 @@ or
 ## How to use
 
 ```html
-<!-- in <head></head> -->
+<!-- Include library in <head> -->
 <script async src="./hackforplayer.js" onload="h4p()"></script>
-<script id="my-script-1" type="hack">
+
+<!-- Put container element in <body> -->
+<div class="h4p__container" data-target=".example1" data-main="hello-world"></div>
+
+<!-- [data-main="hello-world"] means [alias="hello-world"] is entry point -->
+
+
+
+<!-- Type javascript in inline tag -->
+<script class="example1" alias="hello-world" type="hack">
 // Type javascript here
 alert('Hello World!');
+
+// If dependencies needed...
+require('module');
 </script>
 
-<!-- anywhere in body -->
-<div class="h4p__container" data-target="#my-script-1"></div>
+<!-- or include path (NEED ALLOW XHR!!) -->
+<script class="example1" alias="module" src="./some/module.js" type="hack"></script>
+
 ```
 
-So an iframe will create and overlap .h4p__container div.
-And an editor created too!
 
+## FAQ
 
-## How it works
-
-Default code is written in
-```html
-<script id="script1" type="hack">...</script>
-```
-
-But **it works in the iframe**.
-
-
-In the frame, you can use require.js
+- Why develop it for?
+ - For education. Many contents are black box. We hope it makes Open and Programable. :-)
+- Any examples?
+ - Yes, but there're few contents. Please see [Open Index](https://teramotodaiki.github.io/open-index/)
+- Why it can use `require` in browser?
+ - Because `require.js` works in `iframe`. Automatically convert your module to AMD.
+- What *include path (NEED ALLOW XHR!!)* means?
+ - We want your module **as text** because make it programable!
 
 
 ## Why iframe?
@@ -62,4 +71,3 @@ See more:
 https://teramotodaiki.github.io/open-index/
 
 (in preparation)
-

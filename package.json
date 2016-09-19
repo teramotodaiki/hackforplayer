@@ -29,7 +29,6 @@
     "webpack-notifier": "^1.4.1"
   },
   "dependencies": {
-    "codemirror": "^5.18.2",
     "element-resize-detector": "^1.1.7",
     "event-target-shim": "^1.1.1",
     "eventemitter2": "^2.1.3",

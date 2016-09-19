@@ -99,7 +99,8 @@ const init = (models = {}) => {
       const files = [{
         name: 'main',
         filename: 'main.js',
-        code
+        code,
+        isEntryPoint: true
       }];
       const view = {
         align: 'right',

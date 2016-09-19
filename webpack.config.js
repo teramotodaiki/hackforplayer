@@ -30,7 +30,10 @@ module.exports = {
     new WebpackNotifierPlugin(),
     new webpack.DefinePlugin({
       EXPORT_VAR_NAME: JSON.stringify(exportVarName),
-      CSS_PREFIX: JSON.stringify(cssPrefix)
+      CSS_PREFIX: JSON.stringify(cssPrefix),
+      'process.env': {
+        'NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+      }
     })
   ],
   sassLoader: {

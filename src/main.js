@@ -97,7 +97,7 @@ const init = (models = {}) => {
 
       // Default
       const files = [{
-        name: 'main',
+        alias: 'main',
         filename: 'main.js',
         code,
         isEntryPoint: true

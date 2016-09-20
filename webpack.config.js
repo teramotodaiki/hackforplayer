@@ -40,7 +40,8 @@ module.exports = {
     data: `$prefix: ${cssPrefix};`
   },
   devServer: {
-    contentBase: ''
+    contentBase: '',
+    port: process.env.PORT
   }
 
 };

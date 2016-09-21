@@ -3,11 +3,13 @@ const stayBottom = require('./stayBottom');
 const Element = require('./createElementWithEvent');
 const partial = require('../templates/');
 const DomInterface = require('./DomInterface');
+const FrameResizer = require('./FrameResizer');
 require('whatwg-fetch');
 
 require('../scss/main.scss');
 
 const init = ({ urls = {}, models = {} } = {}) => {
+  document.body.appendChild(Player.rootElement);
   const selectors = require('./selectors');
   const containers = document.querySelectorAll(selectors.container);
 
@@ -52,6 +54,7 @@ const init = ({ urls = {}, models = {} } = {}) => {
 
       player.on('screen.load', ({child}) => {
         const frame = child.frame;
+        frame.parentNode.classList.add(CSS_PREFIX + 'frame_container-undock');
         player.show('screen');
 
         const resized = ({width, height}) => player.emit('screen.resize', {frame, width, height});
@@ -64,32 +67,8 @@ const init = ({ urls = {}, models = {} } = {}) => {
         player.restart('screen', {files});
       });
 
-      const alignment = ({child}, view) => {
-        const {x, y} = view.edge;
-        switch (view.align) {
-          case 'top':
-            player.setRect('editor', 0, 0, '100vw', y);
-            break;
-          case 'right':
-            player.setRect('editor', x, 0, innerWidth - x, '100vh');
-            break;
-          case 'left':
-            player.setRect('editor', 0, 0, x, '100vh');
-            break;
-          case 'bottom':
-            player.setRect('editor', 0, y, '100vw', innerHeight - y);
-            break;
-        }
-      };
-      player.on('editor.resize', alignment);
-
       player.on('editor.load', ({child}) => {
         child.on('run', (files) => player.emit('editor.run', {child}, files));
-        child.on('render', (view) => player.emit('editor.resize', {child}, view));
-        const resized = () => child.get('view').then((view) => alignment({child}, view));
-        resized();
-        addEventListener('resize', resized);
-        player.once('editor.beforeunload', () => removeEventListener('resize', task));
       });
 
 
@@ -130,14 +109,17 @@ const init = ({ urls = {}, models = {} } = {}) => {
 
         const view = {
           align: 'right',
-          edge: {
-            x: innerWidth / 2,
-            y: innerHeight / 2
-          }
+          size: { width: innerWidth / 2, height: innerHeight / 2 }
         };
 
-        player.start('screen', Object.assign({}, {files}, models.screen));
-        player.start('editor', Object.assign({}, {files}, view, models.editor));
+        player.on('editor.load', ({ child }) => {
+          const resizer = new FrameResizer(child.frame, view);
+          child.on('render', (view) => view.align && resizer.setAlign(view.align));
+          player.once('editor.beforeunload', () => resizer.destroy());
+        });
+
+        player.start('screen', Object.assign({}, { files }, models.screen));
+        player.start('editor', Object.assign({}, { files, view }, models.editor));
 
       });
 

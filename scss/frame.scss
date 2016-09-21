@@ -1,0 +1,21 @@
+@mixin reset-frame-element {
+  border: 0 none;
+  margin: 0px;
+  padding: 0px;
+}
+
+.#{$container} {
+
+  &-screen>iframe {
+    @include reset-frame-element();
+    position: absolute;
+    top: 0px;
+    left: 0px;
+  }
+
+  &-editor>iframe {
+    @include reset-frame-element();
+    box-shadow: rgba(0, 0, 0, 0.156863) 0px 3px 10px, rgba(0, 0, 0, 0.227451) 0px 3px 10px;
+  }
+
+}

@@ -1,6 +1,6 @@
 const EventEmitter2 = require('eventemitter2');
 const Postmate = require('postmate/build/postmate.min');
-Postmate.debug = true;
+Postmate.debug = process.env.NODE_ENV !== 'production';
 
 const getFrameContainer = require('./getFrameContainer');
 

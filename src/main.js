@@ -109,7 +109,6 @@ const init = ({ urls = {}, models = {} } = {}) => {
 
         const view = {
           align: 'right',
-          edge: { x: innerWidth / 2, y: innerHeight / 2 },
           size: { width: innerWidth / 2, height: innerHeight / 2 }
         };
 
@@ -119,8 +118,8 @@ const init = ({ urls = {}, models = {} } = {}) => {
           player.once('editor.beforeunload', () => resizer.destroy());
         });
 
-        player.start('screen', Object.assign({}, {files}, models.screen));
-        player.start('editor', Object.assign({}, {files}, view, models.editor));
+        player.start('screen', Object.assign({}, { files }, models.screen));
+        player.start('editor', Object.assign({}, { files, view }, models.editor));
 
       });
 

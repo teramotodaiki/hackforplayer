@@ -3,10 +3,13 @@ const stayBottom = require('./stayBottom');
 const Element = require('./createElementWithEvent');
 const partial = require('../templates/');
 const DomInterface = require('./DomInterface');
+const FrameResizer = require('./FrameResizer');
+require('whatwg-fetch');
 
 require('../scss/main.scss');
 
-const init = (models = {}) => {
+const init = ({ urls = {}, models = {} } = {}) => {
+  document.body.appendChild(Player.rootElement);
   const selectors = require('./selectors');
   const containers = document.querySelectorAll(selectors.container);
 
@@ -15,6 +18,7 @@ const init = (models = {}) => {
     .map(container => {
       // An instance of h4p.Player
       const player = new Player();
+      player.urls = Object.assign({}, player.urls, urls);
 
       // DOM renderer interface
       const dom = new DomInterface({
@@ -44,16 +48,13 @@ const init = (models = {}) => {
         Element({ label: 'OPEN', input: {type: 'file', accept: 'text/javascript'}, onChange: fileOpen })
       ];
 
-      // Inline script
-      const query = container.getAttribute('data-target');
-      const code = query && document.querySelector(query).textContent;
-
       const resizeTask = stayBottom(dom);
       dom.addEventListener('screen.resize', resizeTask);
       player.on('screen.resize', resizeTask);
 
       player.on('screen.load', ({child}) => {
         const frame = child.frame;
+        frame.parentNode.classList.add(CSS_PREFIX + 'frame_container-undock');
         player.show('screen');
 
         const resized = ({width, height}) => player.emit('screen.resize', {frame, width, height});
@@ -66,51 +67,61 @@ const init = (models = {}) => {
         player.restart('screen', {files});
       });
 
-      const alignment = ({child}, view) => {
-        const {x, y} = view.edge;
-        switch (view.align) {
-          case 'top':
-            player.setRect('editor', 0, 0, '100vw', y);
-            break;
-          case 'right':
-            player.setRect('editor', x, 0, innerWidth - x, '100vh');
-            break;
-          case 'left':
-            player.setRect('editor', 0, 0, x, '100vh');
-            break;
-          case 'bottom':
-            player.setRect('editor', 0, y, '100vw', innerHeight - y);
-            break;
-        }
-      };
-      player.on('editor.resize', alignment);
-
       player.on('editor.load', ({child}) => {
         child.on('run', (files) => player.emit('editor.run', {child}, files));
-        child.on('render', (view) => player.emit('editor.resize', {child}, view));
-        const resized = () => child.get('view').then((view) => alignment({child}, view));
-        resized();
-        addEventListener('resize', resized);
-        player.once('editor.beforeunload', () => removeEventListener('resize', task));
       });
 
 
       // Default
-      const files = [{
-        name: 'main',
-        filename: 'main.js',
-        code
-      }];
-      const view = {
-        align: 'right',
-        edge: {
-          x: innerWidth / 2,
-          y: innerHeight / 2
-        }
-      };
+      const elements = [].slice.call(
+        document.querySelectorAll(container.getAttribute('data-target'))
+      );
 
-      player.start('screen', Object.assign({}, {files}, models.screen));
-      player.start('editor', Object.assign({}, {files}, view, models.editor));
+      const mainModuleName = container.getAttribute('data-main');
+      const indent = (code) => {
+        code = code.replace(/^\n*/g, '');
+        const spaces = /^\s*/.exec(code)[0];
+        if (spaces) {
+          code = code
+            .split('\n')
+            .map(s => s.indexOf(spaces) ? s :  s.substr(spaces.length))
+            .join('\n');
+        }
+        return code;
+      };
+      Promise.all(
+        elements.map((element) => {
+          const alias = element.getAttribute('alias');
+          const filename = alias + '.js';
+          const isEntryPoint = mainModuleName === alias;
+          const src = element.getAttribute('src');
+
+          return src ?
+            fetch(src)
+              .then((response) => response.text())
+              .then((code) => ({ alias, filename, isEntryPoint, code })) :
+            Promise.resolve({
+              alias, filename, isEntryPoint,
+              code: indent(element.textContent)
+            });
+        })
+      ).then((files) => {
+
+        const view = {
+          align: 'right',
+          size: { width: innerWidth / 2, height: innerHeight / 2 }
+        };
+
+        player.on('editor.load', ({ child }) => {
+          const resizer = new FrameResizer(child.frame, view);
+          child.on('render', (view) => view.align && resizer.setAlign(view.align));
+          player.once('editor.beforeunload', () => resizer.destroy());
+        });
+
+        player.start('screen', Object.assign({}, { files }, models.screen));
+        player.start('editor', Object.assign({}, { files, view }, models.editor));
+
+      });
 
       return player;
     });

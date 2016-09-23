@@ -12,7 +12,7 @@ class Player extends EventEmitter2 {
     this.lastModels = {};
     this.urls = {
       screen: 'https://embed.hackforplay.xyz/open-source/screen/alpha-3.html',
-      editor: 'https://embed.hackforplay.xyz/open-source/editor/alpha-4.html'
+      editor: 'https://embed.hackforplay.xyz/open-source/editor/alpha-5.html'
     };
     this.promises = {};
     this.refs = {};
